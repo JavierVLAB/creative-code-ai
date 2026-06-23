@@ -82,7 +82,38 @@ Se hicieron varios sketches distintos (ruido Perlin, partículas, geometría gen
 
 Con Claude Code se redactó la documentación de producto y diseño técnico a partir de los specs anteriores. Varias secciones se reescribieron porque no se entendían bien o porque metían justificaciones inventadas. Las decisiones de fondo (separación entre exploración y código, alcance del MVP, stack, la memoria en Mastra sobre Supabase) las tomó el criterio humano; la IA redactó y revisó a partir de ahí.
 
-
-
 ---
+
+## Fase 7 — Planificación del refactor con OpenSpec
+
+*23-jun-2026*
+
+Con el prototipo funcional pero 100% cliente, se planificó la migración a la arquitectura objetivo (Mastra + Supabase) usando el sistema OpenSpec.
+
+**Objetivo de la sesión:** establecer la base de trabajo para las entregas 2 y final del curso: definir convenciones de proyecto, planificar el refactor a Mastra/Supabase, y configurar el workflow de desarrollo con OpenSpec.
+
+**Prompts clave de la sesión:**
+
+**Prompt 1 (creación de CLAUDE.md):**
+> "Vamos a empezar con este proyecto, lo primero es escribir algo como un claude.md, para open code y para claude code, que podemos hacer"
+> → Se creó `CLAUDE.md` con stack, workflow OpenSpec, pautas de comportamiento, arnés para subagentes y normas de código.
+
+**Prompt 2 (mentoría en prompting):**
+> "Quiero añadir cosas al claude.md, quiero que actues como un experto en prompt engineering, que corrijas mis prompts, que me diga si el prompt esta bien"
+> → Se añadió sección de mentoría en prompting al CLAUDE.md.
+
+**Prompt 3 (planificación del refactor):**
+> "Revisa el readme.md y el proyecto curateai, lo vamos a refactorizar"
+> → Se analizó el prototipo existente y se creó el change `refactor-backend-mastra-supabase` con specs para Mastra agent, Supabase DB, user auth y deltas para los módulos existentes.
+
+**Prompt 4 (convenciones de proyecto):**
+> "Hay que definir convenciones de código, tests y documentación antes de implementar"
+> → Se creó el change `project-conventions` con 7 specs: directory-structure, typescript-patterns, react-patterns, mastra-patterns, supabase-patterns, code-documentation, testing-patterns.
+
+**Resultado de la sesión:**
+- Proyecto configurado con CLAUDE.md, OpenSpec skills y workflow definido
+- Change `refactor-backend-mastra-supabase`: plan de migración completo con 33 tareas
+- Change `project-conventions`: 7 specs con reglas de código, tests y documentación (pendiente de aplicar)
+- Se decidió aplicar convenciones primero, refactor después
+- El proyecto `AI4Devs-finalproject/` pasa de ser solo documentación a tener un plan de implementación estructurado
 
