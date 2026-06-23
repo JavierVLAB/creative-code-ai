@@ -4,5 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  dedupe: ['react', 'react-dom'],
+  resolve: {
+    dedupe: ['react', 'react-dom'],
+  },
 })

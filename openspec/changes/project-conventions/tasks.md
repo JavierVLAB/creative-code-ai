@@ -20,11 +20,11 @@
 - [x] 3.4 Añadir ejemplo de hook en `front/src/hooks/_example.ts`
 - [x] 3.5 Añadir ejemplo de tipo compartido en `shared/_example.ts`
 - [x] 3.6 Añadir ejemplo de test en `front/src/lib/_example.test.ts`
-- [ ] 3.7 Verificar que `pnpm run build` y `pnpm test` pasan en front y backend
+- [x] 3.7 Verificar que `pnpm run build` y `pnpm test` pasan en front y backend
 
 ## 4. Configurar test runners
 
 - [x] 4.1 Añadir Vitest a `front/package.json` con config `vitest.config.ts`
 - [x] 4.2 Añadir Vitest a `backend/package.json` con config
 - [x] 4.3 Añadir script `pnpm test` en front y backend
-- [ ] 4.4 Verificar que `pnpm test` ejecuta y pasa
+- [x] 4.4 Verificar que `pnpm test` ejecuta y pasa

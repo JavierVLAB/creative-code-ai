@@ -3,7 +3,7 @@
 // y función execute tipada.
 
 import { z } from 'zod'
-import { createTool } from 'mastra'
+import { createTool } from '@mastra/core/tools'
 
 const inputSchema = z.object({
   name: z.string().describe('Nombre a saludar'),
@@ -20,8 +20,8 @@ export function createExampleTool() {
     description: 'Tool de ejemplo que saluda a un nombre',
     inputSchema,
     outputSchema,
-    execute: async ({ context }) => {
-      return { greeting: `Hola, ${context.name}!` }
+    execute: async (inputData) => {
+      return { greeting: `Hola, ${inputData.name}!` }
     },
   })
 }
