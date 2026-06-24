@@ -1,7 +1,14 @@
 export function LoadingScreen() {
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg0)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{
+        width: 32,
+        height: 32,
+        borderRadius: '50%',
+        border: '2px solid var(--t1)',
+        borderTopColor: 'transparent',
+        animation: 'spin 0.7s linear infinite',
+      }} />
     </div>
   )
 }

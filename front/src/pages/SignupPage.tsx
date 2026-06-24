@@ -2,21 +2,31 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  backgroundColor: 'var(--bg2)',
+  border: '1px solid var(--line)',
+  borderRadius: 'var(--radius-sm)',
+  padding: 'var(--space-2) var(--space-3)',
+  fontSize: 'var(--font-size-input)',
+  color: 'var(--t1)',
+  outline: 'none',
+}
+
 export function SignupPage() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [btnHover, setBtnHover] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
     setLoading(true)
-
     const { error } = await supabase.auth.signUp({ email, password })
     setLoading(false)
-
     if (error) {
       setError(error.message)
     } else {
@@ -25,48 +35,49 @@ export function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-      <div className="w-full max-w-sm space-y-6 px-4">
-        <h1 className="text-2xl font-bold text-center">Crear cuenta</h1>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg0)', color: 'var(--t1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: '100%', maxWidth: 360, padding: '0 var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+        <h1 style={{ fontSize: 24, fontWeight: 700, textAlign: 'center' }}>Crear cuenta</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1">
-            <label className="text-sm text-gray-400">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              className="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-gray-500"
-            />
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
+            <label style={{ fontSize: 'var(--font-size-small)', color: 'var(--t2)' }}>Email</label>
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)} required style={inputStyle} />
           </div>
 
-          <div className="space-y-1">
-            <label className="text-sm text-gray-400">Contraseña</label>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              minLength={6}
-              className="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-gray-500"
-            />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
+            <label style={{ fontSize: 'var(--font-size-small)', color: 'var(--t2)' }}>Contraseña</label>
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} style={inputStyle} />
           </div>
 
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && <p style={{ fontSize: 'var(--font-size-small)', color: '#f87171' }}>{error}</p>}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-white text-gray-900 rounded-md py-2 text-sm font-medium hover:bg-gray-100 disabled:opacity-50 transition-colors"
+            onMouseEnter={() => setBtnHover(true)}
+            onMouseLeave={() => setBtnHover(false)}
+            style={{
+              width: '100%',
+              backgroundColor: btnHover && !loading ? 'var(--bg3)' : 'var(--t1)',
+              color: 'var(--bg0)',
+              borderRadius: 'var(--radius-sm)',
+              padding: 'var(--space-2) 0',
+              fontSize: 'var(--font-size-body)',
+              fontWeight: 500,
+              border: 'none',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.5 : 1,
+              transition: 'background-color var(--transition-fast)',
+            }}
           >
             {loading ? 'Creando cuenta...' : 'Crear cuenta'}
           </button>
         </form>
 
-        <p className="text-sm text-center text-gray-500">
+        <p style={{ fontSize: 'var(--font-size-small)', textAlign: 'center', color: 'var(--t3)' }}>
           ¿Ya tienes cuenta?{' '}
-          <Link to="/login" className="text-white hover:underline">
+          <Link to="/login" style={{ color: 'var(--t1)', textDecoration: 'underline' }}>
             Entrar
           </Link>
         </p>

@@ -11,14 +11,26 @@ interface ControlPanelProps {
 export function ControlPanel({ controls, values, onChange }: ControlPanelProps) {
   if (controls.length === 0) {
     return (
-      <div className="p-4 text-xs text-gray-500 flex-1">
+      <div style={{
+        padding: 'var(--padding-section)',
+        fontSize: 'var(--font-size-xs)',
+        color: 'var(--t3)',
+        flex: 1,
+      }}>
         Sin controles definidos.
       </div>
     )
   }
 
   return (
-    <div className="p-4 space-y-5 overflow-y-auto flex-1">
+    <div style={{
+      padding: 'var(--padding-section)',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 'var(--space-5)',
+      overflowY: 'auto',
+      flex: 1,
+    }}>
       {controls.map(control => {
         if (control.kind === 'slider') {
           return (

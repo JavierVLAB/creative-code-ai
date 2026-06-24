@@ -1,6 +1,15 @@
 export function ChatPlaceholder() {
   return (
-    <div className="border-t border-gray-800 p-4 flex items-center justify-center h-48 text-xs text-gray-600">
+    <div style={{
+      borderTop: '1px solid var(--line)',
+      padding: 'var(--space-4)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: 192,
+      fontSize: 'var(--font-size-xs)',
+      color: 'var(--t3)',
+    }}>
       Agente próximamente
     </div>
   )

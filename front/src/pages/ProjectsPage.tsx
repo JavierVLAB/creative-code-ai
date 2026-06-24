@@ -9,6 +9,8 @@ export function ProjectsPage() {
   const { projects, loading, error, createProject, deleteProject } = useProjects()
   const [showCreate, setShowCreate] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
+  const [newBtnHover, setNewBtnHover] = useState(false)
+  const [deleteBtnHover, setDeleteBtnHover] = useState(false)
 
   async function handleCreate(name: string) {
     const project = await createProject(name)
@@ -22,35 +24,56 @@ export function ProjectsPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-10 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Mis proyectos</h1>
+    <div style={{
+      maxWidth: 768,
+      margin: '0 auto',
+      padding: 'var(--space-6) var(--space-6)',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 'var(--space-6)',
+      overflowY: 'auto',
+      height: '100%',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--t1)' }}>Mis proyectos</h1>
         <button
           onClick={() => setShowCreate(true)}
-          className="bg-white text-gray-900 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-100 transition-colors"
+          onMouseEnter={() => setNewBtnHover(true)}
+          onMouseLeave={() => setNewBtnHover(false)}
+          style={{
+            backgroundColor: newBtnHover ? 'var(--bg3)' : 'var(--t1)',
+            color: 'var(--bg0)',
+            padding: 'var(--space-2) var(--space-4)',
+            borderRadius: 'var(--radius-sm)',
+            fontSize: 'var(--font-size-small)',
+            fontWeight: 500,
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'background-color var(--transition-fast)',
+          }}
         >
           + Nuevo proyecto
         </button>
       </div>
 
       {loading && (
-        <p className="text-gray-500 text-sm">Cargando...</p>
+        <p style={{ color: 'var(--t3)', fontSize: 'var(--font-size-small)' }}>Cargando...</p>
       )}
 
       {error && (
-        <p className="text-red-400 text-sm">{error}</p>
+        <p style={{ color: '#f87171', fontSize: 'var(--font-size-small)' }}>{error}</p>
       )}
 
       {!loading && projects.length === 0 && (
-        <div className="text-center py-16 text-gray-500 space-y-2">
-          <p className="text-4xl">🎨</p>
+        <div style={{ textAlign: 'center', padding: 'var(--space-6) 0', color: 'var(--t3)', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+          <p style={{ fontSize: 40 }}>🎨</p>
           <p>Aún no tienes proyectos.</p>
-          <p className="text-sm">Crea uno para empezar a explorar.</p>
+          <p style={{ fontSize: 'var(--font-size-small)' }}>Crea uno para empezar a explorar.</p>
         </div>
       )}
 
       {projects.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 'var(--space-4)' }}>
           {projects.map(p => (
             <ProjectCard
               key={p.id}
@@ -69,22 +92,59 @@ export function ProjectsPage() {
       )}
 
       {deleteTarget && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-gray-800 rounded-lg p-6 w-full max-w-sm space-y-4">
-            <h2 className="font-semibold">Eliminar proyecto</h2>
-            <p className="text-sm text-gray-400">
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(0,0,0,0.72)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 50,
+        }}>
+          <div style={{
+            backgroundColor: 'var(--bg1)',
+            borderRadius: 'var(--radius-lg)',
+            padding: 'var(--space-6)',
+            width: '100%',
+            maxWidth: 360,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 'var(--space-4)',
+          }}>
+            <h2 style={{ fontWeight: 600, color: 'var(--t1)' }}>Eliminar proyecto</h2>
+            <p style={{ fontSize: 'var(--font-size-small)', color: 'var(--t2)' }}>
               Esta acción no se puede deshacer. ¿Seguro que quieres eliminar este proyecto?
             </p>
-            <div className="flex gap-2 justify-end">
+            <div style={{ display: 'flex', gap: 'var(--space-2)', justifyContent: 'flex-end' }}>
               <button
                 onClick={() => setDeleteTarget(null)}
-                className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+                style={{
+                  padding: 'var(--space-2) var(--space-4)',
+                  fontSize: 'var(--font-size-small)',
+                  color: 'var(--t2)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
               >
                 Cancelar
               </button>
               <button
                 onClick={() => handleDelete(deleteTarget)}
-                className="px-4 py-2 text-sm bg-red-600 text-white rounded-md font-medium hover:bg-red-700 transition-colors"
+                onMouseEnter={() => setDeleteBtnHover(true)}
+                onMouseLeave={() => setDeleteBtnHover(false)}
+                style={{
+                  padding: 'var(--space-2) var(--space-4)',
+                  fontSize: 'var(--font-size-small)',
+                  backgroundColor: deleteBtnHover ? '#dc2626' : '#ef4444',
+                  color: '#fff',
+                  borderRadius: 'var(--radius-sm)',
+                  fontWeight: 500,
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'background-color var(--transition-fast)',
+                }}
               >
                 Eliminar
               </button>

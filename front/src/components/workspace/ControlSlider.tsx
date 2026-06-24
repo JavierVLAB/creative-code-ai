@@ -8,8 +8,8 @@ interface ControlSliderProps {
 
 export function ControlSlider({ control, value, onChange }: ControlSliderProps) {
   return (
-    <div className="space-y-1">
-      <div className="flex justify-between text-xs text-gray-400">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--font-size-xs)', color: 'var(--t2)' }}>
         <span>{control.label}</span>
         <span>{value}</span>
       </div>
@@ -20,7 +20,7 @@ export function ControlSlider({ control, value, onChange }: ControlSliderProps) 
         step={control.step}
         value={value}
         onChange={e => onChange(control.key, Number(e.target.value))}
-        className="w-full accent-white"
+        style={{ width: '100%' }}
       />
     </div>
   )

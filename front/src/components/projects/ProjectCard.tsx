@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { Database } from '../../lib/database.types'
 
@@ -13,24 +14,57 @@ function formatDate(iso: string) {
 }
 
 export function ProjectCard({ project, onDelete }: ProjectCardProps) {
+  const [hovered, setHovered] = useState(false)
+  const [deleteHover, setDeleteHover] = useState(false)
+
   return (
-    <div className="bg-gray-800 rounded-lg p-4 flex flex-col gap-3 hover:bg-gray-750 transition-colors">
-      <div className="flex items-start justify-between gap-2">
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        backgroundColor: hovered ? 'var(--bg2)' : 'var(--bg1)',
+        border: '1px solid var(--line)',
+        borderRadius: 'var(--radius-md)',
+        padding: 'var(--space-4)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 'var(--space-3)',
+        transition: 'background-color var(--transition-fast)',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 'var(--space-2)' }}>
         <Link
           to={`/app/projects/${project.id}`}
-          className="font-medium hover:text-gray-300 transition-colors line-clamp-1"
+          style={{
+            fontWeight: 500,
+            color: 'var(--t1)',
+            textDecoration: 'none',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
         >
           {project.name}
         </Link>
         <button
           onClick={() => onDelete(project.id)}
-          className="text-gray-500 hover:text-red-400 transition-colors text-sm shrink-0"
+          onMouseEnter={() => setDeleteHover(true)}
+          onMouseLeave={() => setDeleteHover(false)}
           aria-label="Eliminar proyecto"
+          style={{
+            color: deleteHover ? '#f87171' : 'var(--t3)',
+            fontSize: 'var(--font-size-small)',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            flexShrink: 0,
+            transition: 'color var(--transition-fast)',
+          }}
         >
           ✕
         </button>
       </div>
-      <p className="text-xs text-gray-500">
+      <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--t3)' }}>
         Actualizado {formatDate(project.updated_at)}
       </p>
     </div>

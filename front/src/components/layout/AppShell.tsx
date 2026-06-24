@@ -1,29 +1,53 @@
+import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { useSession } from '../../hooks/useSession'
 
 export function AppShell() {
   const { session } = useSession()
+  const [logoutHover, setLogoutHover] = useState(false)
 
   async function handleLogout() {
     await supabase.auth.signOut()
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col">
-      <nav className="border-b border-gray-800 px-6 py-3 flex items-center justify-between">
-        <span className="font-semibold text-lg">CurateArtAI</span>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-400">{session?.user.email}</span>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg0)', color: 'var(--t1)', display: 'flex', flexDirection: 'column' }}>
+      <nav style={{
+        height: 'var(--topbar-height)',
+        backgroundColor: 'var(--bg1)',
+        borderBottom: '1px solid var(--line)',
+        padding: '0 var(--space-6)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexShrink: 0,
+      }}>
+        <span style={{ fontWeight: 600, fontSize: 'var(--font-size-title)', color: 'var(--t1)' }}>
+          CurateArtAI
+        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+          <span style={{ fontSize: 'var(--font-size-small)', color: 'var(--t3)' }}>
+            {session?.user.email}
+          </span>
           <button
             onClick={handleLogout}
-            className="text-sm text-gray-300 hover:text-white transition-colors"
+            onMouseEnter={() => setLogoutHover(true)}
+            onMouseLeave={() => setLogoutHover(false)}
+            style={{
+              fontSize: 'var(--font-size-small)',
+              color: logoutHover ? 'var(--t1)' : 'var(--t2)',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'color var(--transition-fast)',
+            }}
           >
             Salir
           </button>
         </div>
       </nav>
-      <main className="flex-1">
+      <main style={{ flex: 1, overflow: 'hidden' }}>
         <Outlet />
       </main>
     </div>

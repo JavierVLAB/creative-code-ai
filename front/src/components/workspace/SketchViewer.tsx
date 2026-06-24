@@ -82,7 +82,6 @@ interface SketchViewerProps {
 }
 
 export function SketchViewer({ sketchJs, configYaml, iframeRef, status, errorMessage, sendInit, onControlsReady }: SketchViewerProps) {
-
   const effectiveSketchJs = sketchJs ?? DEMO_SKETCH_JS
   const effectiveConfigYaml = configYaml ?? DEMO_CONFIG_YAML
 
@@ -105,21 +104,45 @@ export function SketchViewer({ sketchJs, configYaml, iframeRef, status, errorMes
   }, [effectiveSketchJs, effectiveConfigYaml])
 
   return (
-    <div className="relative w-full h-full bg-gray-950">
+    <div style={{ position: 'relative', width: '100%', height: '100%', backgroundColor: 'var(--bg0)' }}>
       <iframe
         ref={iframeRef}
         title="sketch"
         srcDoc={buildSrcdoc(effectiveSketchJs)}
         sandbox="allow-scripts"
-        className="w-full h-full border-0"
+        style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
       />
       {status === 'loading' && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-950/60">
-          <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: 'rgba(26,26,26,0.8)',
+        }}>
+          <div style={{
+            width: 24,
+            height: 24,
+            borderRadius: '50%',
+            border: '2px solid var(--t1)',
+            borderTopColor: 'transparent',
+            animation: 'spin 0.7s linear infinite',
+          }} />
         </div>
       )}
       {status === 'error' && (
-        <div className="absolute bottom-4 left-4 right-4 bg-red-900/80 text-red-200 text-xs rounded-md px-3 py-2">
+        <div style={{
+          position: 'absolute',
+          bottom: 'var(--space-4)',
+          left: 'var(--space-4)',
+          right: 'var(--space-4)',
+          backgroundColor: 'rgba(153,27,27,0.85)',
+          color: '#fca5a5',
+          fontSize: 'var(--font-size-xs)',
+          borderRadius: 'var(--radius-sm)',
+          padding: 'var(--space-2) var(--space-3)',
+        }}>
           Error: {errorMessage}
         </div>
       )}

@@ -1,1 +1,117 @@
 @import "tailwindcss";
+
+/* Tokens de diseño extraídos del mockup de referencia */
+:root {
+  --bg0: #1a1a1a;
+  --bg1: #242424;
+  --bg2: #2c2c2c;
+  --bg3: #333333;
+  --line: #3a3a3a;
+  --t1: #f0f0f0;
+  --t2: #b4b4b4;
+  --t3: #707070;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  --gap-controls: var(--space-6);
+  --gap-label-control: var(--space-3);
+  --gap-label-slider: var(--space-4);
+  --padding-section: var(--space-6);
+  --padding-module: var(--space-6);
+  --gap-section-title: var(--space-3);
+  --padding-section-top: var(--space-4);
+
+  --btn-font-size: 14px;
+  --btn-padding: var(--space-2) var(--space-3);
+  --btn-color: var(--t2);
+  --input-padding: var(--space-2) var(--space-2);
+
+  --size-icon-btn: 40px;
+  --topbar-height: 52px;
+  --sidebar-width: 320px;
+  --chat-width: 320px;
+
+  --font-size-title: 18px;
+  --font-size-body: 14px;
+  --font-size-small: 13px;
+  --font-size-xs: 12px;
+  --font-size-input: 14px;
+  --font-size-section-title: 11px;
+  --font-size-control-label: 15px;
+  --color-section-title: var(--t2);
+  --color-control-label: var(--t2);
+  --color-control-value: var(--t2);
+  --font-size-display: 32px;
+  --font-size-display-sm: 24px;
+
+  --shadow-sm: 0 4px 16px rgba(0,0,0,0.4);
+  --shadow-md: 0 8px 32px rgba(0,0,0,0.45);
+
+  --transition-fast: 0.1s;
+  --transition-normal: 0.15s;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg0);
+  color: var(--t1);
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] { -moz-appearance: textfield; }
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  width: 100%;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  background: var(--bg0);
+  border-radius: 100px;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg1);
+  border: 2px solid var(--t1);
+  margin-top: -6px;
+  transition: transform var(--transition-fast);
+}
+input[type="range"]:hover::-webkit-slider-thumb { transform: scale(1.1); }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

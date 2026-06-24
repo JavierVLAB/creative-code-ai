@@ -104,6 +104,16 @@ Las reglas detalladas están en `openspec/changes/project-conventions/specs/`:
 | `code-documentation` | Comentarios en español, JSDoc, "why not what", sin código comentado |
 | `testing-patterns` | Vitest co-locado, tests por ticket, dominio sin mocks |
 
+## Gestión de dependencias
+
+Las instalaciones de paquetes las hace siempre Javi. Claude no ejecuta `pnpm add` ni instala dependencias.
+
+Si durante una tarea se detecta que falta una dependencia:
+- Notificar: "Falta `<paquete>` — ejecuta `pnpm add <paquete>` en `<directorio>`"
+- Esperar confirmación de que está instalado antes de continuar
+
+---
+
 ## Normas de código
 
 - Prioridad: código legible y auditable por humanos e IAs.

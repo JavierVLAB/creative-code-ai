@@ -27,10 +27,12 @@
     "@mastra/core": "^1.45.0",
     "@mastra/pg": "^1.14.0",
     "@supabase/supabase-js": "^2.49.4",
+    "js-yaml": "^5.1.0",
     "mastra": "^1.15.0",
     "zod": "^3.24.0"
   },
   "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^24.12.0",
     "typescript": "~5.9.3",
     "vitest": "^3.1.0"

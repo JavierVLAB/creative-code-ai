@@ -1,14 +1,14 @@
 ## ADDED Requirements
 
 ### Requirement: El endpoint acepta requests autenticados
-El servidor SHALL exponer `POST /api/agent`. Todos los requests DEBEN incluir el header `Authorization: Bearer <supabase-jwt>`. El servidor verifica el token con `@mastra/auth-supabase`. Requests sin token válido devuelven 401.
+El servidor SHALL exponer `POST /agent`. Todos los requests DEBEN incluir el header `Authorization: Bearer <supabase-jwt>`. El servidor verifica el token con `@mastra/auth-supabase`. Requests sin token válido devuelven 401.
 
 #### Scenario: Request con token válido
-- **WHEN** el frontend envía `POST /api/agent` con un JWT de Supabase válido
+- **WHEN** el frontend envía `POST /agent` con un JWT de Supabase válido
 - **THEN** el servidor procesa el request y devuelve 200 con la respuesta del agente
 
 #### Scenario: Request sin token
-- **WHEN** el frontend envía `POST /api/agent` sin header Authorization
+- **WHEN** el frontend envía `POST /agent` sin header Authorization
 - **THEN** el servidor devuelve 401 con `{ error: "Unauthorized" }`
 
 #### Scenario: Request con token expirado

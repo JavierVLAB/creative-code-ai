@@ -46,7 +46,7 @@ export function WorkspacePage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full text-gray-500 text-sm">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--t3)', fontSize: 'var(--font-size-small)' }}>
         Cargando proyecto...
       </div>
     )
@@ -54,17 +54,19 @@ export function WorkspacePage() {
 
   if (!project) {
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-4">
-        <p className="text-gray-400">Proyecto no encontrado.</p>
-        <Link to="/app" className="text-sm text-white hover:underline">← Volver a la biblioteca</Link>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: 'var(--space-4)' }}>
+        <p style={{ color: 'var(--t2)' }}>Proyecto no encontrado.</p>
+        <Link to="/app" style={{ fontSize: 'var(--font-size-small)', color: 'var(--t1)', textDecoration: 'underline' }}>
+          ← Volver a la biblioteca
+        </Link>
       </div>
     )
   }
 
   return (
-    <div className="flex h-[calc(100vh-49px)]">
+    <div style={{ display: 'flex', height: 'calc(100vh - var(--topbar-height))' }}>
       {/* Panel izquierdo: sketch */}
-      <div className="flex-1 min-w-0">
+      <div style={{ flex: 1, minWidth: 0 }}>
         <SketchViewer
           sketchJs={project.sketch_js}
           configYaml={project.config_yaml}
@@ -77,12 +79,15 @@ export function WorkspacePage() {
       </div>
 
       {/* Panel derecho: controles + chat */}
-      <div className="w-72 flex flex-col border-l border-gray-800 shrink-0">
-        <ControlPanel
-          controls={controls}
-          values={values}
-          onChange={handleControlChange}
-        />
+      <div style={{
+        width: 288,
+        display: 'flex',
+        flexDirection: 'column',
+        borderLeft: '1px solid var(--line)',
+        flexShrink: 0,
+        backgroundColor: 'var(--bg1)',
+      }}>
+        <ControlPanel controls={controls} values={values} onChange={handleControlChange} />
         <ChatPlaceholder />
       </div>
     </div>

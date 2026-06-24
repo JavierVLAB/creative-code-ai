@@ -117,3 +117,15 @@ Con el prototipo funcional pero 100% cliente, se planificó la migración a la a
 - Se decidió aplicar convenciones primero, refactor después
 - El proyecto `AI4Devs-finalproject/` pasa de ser solo documentación a tener un plan de implementación estructurado
 
+---
+
+## Fase 8 — Implementación del backend y sistema de diseño
+
+*24-jun-2026*
+
+Dos changes implementados en paralelo con subagentes.
+
+**`backend-agent`** — El backend pasa de scaffolding vacío a tener un agente funcional que entiende instrucciones en lenguaje natural y edita sketches. El agente decide cuándo modificar parámetros, cuándo tocar el código del sketch, y cuándo simplemente responder. Incluye guardrails para evitar bucles y limitar el número de tool-calls por turno. Se expone como endpoint HTTP autenticado con JWT de Supabase, con historial de conversación persistente por proyecto.
+
+**`design-system-tokens`** — El frontend tenía dos sistemas de estilos mezclados: clases de Tailwind y variables CSS propias del proyecto original. Eso hacía imposible cambiar el tema de forma consistente. Este change unifica todo en un único sistema basado en custom properties CSS, de modo que cambiar un token en `:root` afecta a toda la UI.
+
