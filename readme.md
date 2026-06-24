@@ -423,3 +423,6 @@ Otros contratos del sistema, fuera de esta API REST:
 Pendiente. Se documentarán a medida que se abran (la entrega final pide 3).
 
 - PR #1 — Entrega 1: documentación técnica.
+
+## Lidr Creative Demo 26
+demo creative code ai

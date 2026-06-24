@@ -1,0 +1,11 @@
+import { createClient } from '@supabase/supabase-js'
+import type { Database } from './database.types'
+
+export function createBrowserSupabase() {
+  return createClient<Database>(
+    import.meta.env.VITE_SUPABASE_URL,
+    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+  )
+}
+
+export const supabase = createBrowserSupabase()
