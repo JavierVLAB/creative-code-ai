@@ -61,12 +61,12 @@ function buildSrcdoc(sketchJs: string): string {
 <head>
 <meta charset="utf-8">
 <style>body { margin: 0; overflow: hidden; }</style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.3/p5.min.js"><\/script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.3/p5.min.js"></script>
 </head>
 <body>
 <script>
 ${sketchJs}
-<\/script>
+</script>
 </body>
 </html>`
 }
@@ -79,9 +79,11 @@ interface SketchViewerProps {
   errorMessage: string | null
   sendInit: (config: SketchConfig, values: Record<string, unknown>) => void
   onControlsReady?: (controls: ReturnType<typeof generateControls>) => void
+  // Tamaño del lienzo; el iframe se renderiza centrado con estas dimensiones (look del prototipo)
+  canvasSize: { width: number; height: number }
 }
 
-export function SketchViewer({ sketchJs, configYaml, iframeRef, status, errorMessage, sendInit, onControlsReady }: SketchViewerProps) {
+export function SketchViewer({ sketchJs, configYaml, iframeRef, status, errorMessage, sendInit, onControlsReady, canvasSize }: SketchViewerProps) {
   const effectiveSketchJs = sketchJs ?? DEMO_SKETCH_JS
   const effectiveConfigYaml = configYaml ?? DEMO_CONFIG_YAML
 
@@ -104,13 +106,25 @@ export function SketchViewer({ sketchJs, configYaml, iframeRef, status, errorMes
   }, [effectiveSketchJs, effectiveConfigYaml])
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', backgroundColor: 'var(--bg0)' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: 'var(--bg0)' }}>
+      {/* Fondo con grid de puntos, como en el prototipo */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        backgroundImage: 'radial-gradient(circle, var(--grid-dot-color) 1px, transparent 1px)',
+        backgroundSize: 'var(--grid-dot-size)',
+        pointerEvents: 'none',
+      }} />
       <iframe
+        // El key fuerza el remontaje (y re-ejecución de setup) al cambiar el tamaño del lienzo
+        key={`${canvasSize.width}x${canvasSize.height}`}
         ref={iframeRef}
         title="sketch"
         srcDoc={buildSrcdoc(effectiveSketchJs)}
         sandbox="allow-scripts"
-        style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
+        width={canvasSize.width}
+        height={canvasSize.height}
+        style={{ border: 'none', display: 'block', position: 'relative', zIndex: 1, boxShadow: 'var(--shadow-canvas)' }}
       />
       {status === 'loading' && (
         <div style={{
@@ -119,11 +133,11 @@ export function SketchViewer({ sketchJs, configYaml, iframeRef, status, errorMes
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: 'rgba(26,26,26,0.8)',
+          backgroundColor: 'var(--overlay-bg)',
         }}>
           <div style={{
-            width: 24,
-            height: 24,
+            width: 'var(--space-6)',
+            height: 'var(--space-6)',
             borderRadius: '50%',
             border: '2px solid var(--t1)',
             borderTopColor: 'transparent',
@@ -137,8 +151,8 @@ export function SketchViewer({ sketchJs, configYaml, iframeRef, status, errorMes
           bottom: 'var(--space-4)',
           left: 'var(--space-4)',
           right: 'var(--space-4)',
-          backgroundColor: 'rgba(153,27,27,0.85)',
-          color: '#fca5a5',
+          backgroundColor: 'var(--color-error-bg)',
+          color: 'var(--color-error-soft)',
           fontSize: 'var(--font-size-xs)',
           borderRadius: 'var(--radius-sm)',
           padding: 'var(--space-2) var(--space-3)',

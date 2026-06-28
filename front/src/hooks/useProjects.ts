@@ -53,6 +53,10 @@ export function useProjects() {
     }
   }
 
+  // Carga inicial al montar. `loading` ya arranca en `true`, así que el
+  // setState del fetch no introduce un render extra problemático; la regla es
+  // conservadora con el fetch-on-mount, que aquí es intencional.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchProjects() }, [])
 
   return { projects, loading, error, createProject, deleteProject, refetch: fetchProjects }

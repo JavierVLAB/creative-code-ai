@@ -16,7 +16,7 @@ export function AppShell() {
       <nav style={{
         height: 'var(--topbar-height)',
         backgroundColor: 'var(--bg1)',
-        borderBottom: '1px solid var(--line)',
+        borderBottom: 'var(--border-width) solid var(--line)',
         padding: '0 var(--space-6)',
         display: 'flex',
         alignItems: 'center',

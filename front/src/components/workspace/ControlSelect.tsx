@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import type { SelectControl } from '../../lib/types'
 
 interface ControlSelectProps {
@@ -7,58 +6,93 @@ interface ControlSelectProps {
   onChange: (key: string, value: string) => void
 }
 
+// Control de tipo select: swatches de color (cuadrados redondeados) si las opciones
+// son colores, o chips de texto en grid si no. Réplica del SelectControl del prototipo.
 export function ControlSelect({ control, value, onChange }: ControlSelectProps) {
-  const [hoveredOpt, setHoveredOpt] = useState<string | null>(null)
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-      <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--t2)' }}>{control.label}</p>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
-        {control.options.map(opt => {
-          const selected = value === opt.value
-          if (control.isColor) {
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-label-control)' }}>
+      <div>
+        <span style={{ fontSize: 'var(--font-size-control-label)', color: 'var(--color-control-label)' }}>
+          {control.label}
+        </span>
+      </div>
+
+      {control.isColor ? (
+        // Swatches de color: cuadrados redondeados con borde de selección
+        <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
+          {control.options.map(opt => {
+            const selected = value === opt.value
             return (
               <button
                 key={opt.value}
                 title={opt.label}
                 onClick={() => onChange(control.key, opt.value)}
                 style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: '50%',
+                  width: 'var(--space-6)',
+                  height: 'var(--space-6)',
+                  borderRadius: 'var(--radius-sm)',
                   border: selected ? '2px solid var(--t1)' : '2px solid transparent',
-                  backgroundColor: opt.value,
+                  background: opt.value,
                   cursor: 'pointer',
-                  transform: selected ? 'scale(1.1)' : 'scale(1)',
-                  transition: 'transform var(--transition-fast)',
-                  outline: 'none',
+                  outline: selected ? 'var(--border-width) solid var(--bg0)' : 'none',
+                  outlineOffset: '-3px',
+                  transition: 'border-color var(--transition-fast)',
                 }}
               />
             )
-          }
-          const isHovered = hoveredOpt === opt.value
-          return (
-            <button
-              key={opt.value}
-              onClick={() => onChange(control.key, opt.value)}
-              onMouseEnter={() => setHoveredOpt(opt.value)}
-              onMouseLeave={() => setHoveredOpt(null)}
-              style={{
-                padding: 'var(--space-1) var(--space-3)',
-                borderRadius: 'var(--radius-sm)',
-                fontSize: 'var(--font-size-xs)',
-                border: selected ? '1px solid var(--t1)' : `1px solid ${isHovered ? 'var(--t2)' : 'var(--line)'}`,
-                backgroundColor: selected ? 'var(--t1)' : 'var(--bg0)',
-                color: selected ? 'var(--bg0)' : isHovered ? 'var(--t1)' : 'var(--t2)',
-                cursor: 'pointer',
-                transition: 'border-color var(--transition-fast), color var(--transition-fast), background-color var(--transition-fast)',
-              }}
-            >
-              {opt.label}
-            </button>
-          )
-        })}
-      </div>
+          })}
+        </div>
+      ) : (
+        // Chips de texto en grid de 3 columnas
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: 'var(--space-1)',
+          background: 'var(--bg0)',
+          padding: 'var(--space-1)',
+          borderRadius: 'var(--radius-md)',
+        }}>
+          {control.options.map(opt => {
+            const selected = value === opt.value
+            return (
+              <button
+                key={opt.value}
+                onClick={() => onChange(control.key, opt.value)}
+                style={{
+                  textAlign: 'center',
+                  padding: '0 var(--space-2)',
+                  height: 'var(--space-6)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: 'var(--font-size-body)',
+                  color: selected ? 'var(--t1)' : 'var(--t3)',
+                  cursor: 'pointer',
+                  border: selected ? 'var(--border-width) solid var(--line)' : 'none',
+                  background: selected ? 'var(--bg3)' : 'transparent',
+                  fontFamily: 'inherit',
+                  transition: 'all var(--transition-fast)',
+                }}
+                onMouseEnter={e => {
+                  if (!selected) {
+                    e.currentTarget.style.color = 'var(--t2)'
+                    e.currentTarget.style.background = 'var(--bg2)'
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (!selected) {
+                    e.currentTarget.style.color = 'var(--t3)'
+                    e.currentTarget.style.background = 'transparent'
+                  }
+                }}
+              >
+                {opt.label}
+              </button>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

@@ -6,7 +6,8 @@
   --bg1: #242424;
   --bg2: #2c2c2c;
   --bg3: #333333;
-  --line: #3a3a3a;
+  --line: #3a3a3a;       /* color de borde — igual que el proyecto de referencia */
+  --border-width: 1px;   /* grosor de borde base — ajústalo aquí para toda la app */
   --t1: #f0f0f0;
   --t2: #b4b4b4;
   --t3: #707070;
@@ -58,6 +59,26 @@
 
   --transition-fast: 0.1s;
   --transition-normal: 0.15s;
+
+  /* Tokens usados por los paneles del workspace (portados del prototipo) */
+  --explorer-width: 160px;                 /* ancho del explorador de archivos */
+  --editor-width: 420px;                   /* ancho del panel de editor de código */
+  --font-mono: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace; /* editor de código */
+  --font-size-base: 13px;                  /* tamaño base del código en el editor */
+
+  /* Canvas: grid de puntos de fondo + sombra del sketch centrado (look del prototipo) */
+  --grid-dot-color: #303030;
+  --grid-dot-size: 28px;
+  --shadow-canvas: 0 0 0 1px var(--line), 0 var(--space-4) var(--space-4) rgba(0,0,0,0.7);
+
+  /* Colores semánticos de estado (overlays, errores, trace del orquestador en DevPanel) */
+  --color-error: #f87171;        /* errores, bordes/iconos de fallo */
+  --color-error-soft: #fca5a5;   /* texto de error sobre fondo oscuro */
+  --color-success: #6ee7b7;      /* éxito / etiqueta DEV */
+  --color-info: #93c5fd;         /* información / skill del trace */
+  --color-accent: #a78bfa;       /* acento / etiquetas del trace */
+  --overlay-bg: rgba(26, 26, 26, 0.8);     /* velo de carga sobre el canvas (bg0 translúcido) */
+  --color-error-bg: rgba(153, 27, 27, 0.85); /* fondo del aviso de error del sketch */
 }
 
 *, *::before, *::after {

@@ -1,5 +1,5 @@
-// Tipos generados a mano desde supabase/migrations/20260623000000_initial_schema.sql
-// Actualizar si el schema cambia
+// Tipos generados a mano desde supabase/migrations/
+// Actualizar si el schema cambia. Idealmente regenerar con el CLI de Supabase.
 
 export type Json = string | number | boolean | null | { [key: string]: Json } | Json[]
 
@@ -28,6 +28,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       projects: {
         Row: {
@@ -63,6 +64,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       snapshots: {
         Row: {
@@ -70,6 +72,8 @@ export interface Database {
           project_id: string
           user_id: string
           label: string | null
+          // Combinación de valores de parámetros (añadida por la migración de workspace-ui)
+          values: Json | null
           sketch_js: string | null
           config_yaml: string | null
           created_at: string
@@ -79,6 +83,7 @@ export interface Database {
           project_id: string
           user_id: string
           label?: string | null
+          values?: Json | null
           sketch_js?: string | null
           config_yaml?: string | null
           created_at?: string
@@ -88,10 +93,12 @@ export interface Database {
           project_id?: string
           user_id?: string
           label?: string | null
+          values?: Json | null
           sketch_js?: string | null
           config_yaml?: string | null
           created_at?: string
         }
+        Relationships: []
       }
       assets: {
         Row: {
@@ -124,10 +131,12 @@ export interface Database {
           size_bytes?: number | null
           created_at?: string
         }
+        Relationships: []
       }
     }
     Views: Record<string, never>
     Functions: Record<string, never>
     Enums: Record<string, never>
+    CompositeTypes: Record<string, never>
   }
 }

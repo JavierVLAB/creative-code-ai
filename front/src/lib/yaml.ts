@@ -22,3 +22,9 @@ export function parseSketchConfig(yamlText: string): SketchConfig {
 
   return config as unknown as SketchConfig
 }
+
+// Serializa un SketchConfig de vuelta a YAML. Se usa al aplicar cambios de canvas
+// desde la UI (no preserva comentarios del YAML original; aceptable para el MVP).
+export function serializeSketchConfig(config: SketchConfig): string {
+  return jsYaml.dump(config, { indent: 2, lineWidth: -1 })
+}

@@ -9,7 +9,9 @@ function isHex(value: string) {
 export function generateControls(config: SketchConfig): Control[] {
   return Object.entries(config.modules)
     .filter(([key]) => key !== 'canvas')
-    .flatMap(([key, mod]) => {
+    // Anotamos el retorno como Control[] para que flatMap no infiera una unión
+    // de arrays (SliderControl[] | SelectControl[]), que TS rechaza.
+    .flatMap(([key, mod]): Control[] => {
       if (typeof mod !== 'object' || mod === null || !('type' in mod)) return []
 
       const m = mod as { type: string }

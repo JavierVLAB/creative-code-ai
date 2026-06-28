@@ -8,11 +8,18 @@ interface ControlSliderProps {
 
 export function ControlSlider({ control, value, onChange }: ControlSliderProps) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--font-size-xs)', color: 'var(--t2)' }}>
-        <span>{control.label}</span>
-        <span>{value}</span>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-label-slider)' }}>
+      {/* Cabecera: nombre + valor actual */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: 'var(--font-size-control-label)', color: 'var(--color-control-label)' }}>
+          {control.label}
+        </span>
+        <span style={{ fontSize: 'var(--font-size-control-label)', color: 'var(--color-control-value)' }}>
+          {value}
+        </span>
       </div>
+
+      {/* Slider */}
       <input
         type="range"
         min={control.min}
@@ -20,7 +27,6 @@ export function ControlSlider({ control, value, onChange }: ControlSliderProps) 
         step={control.step}
         value={value}
         onChange={e => onChange(control.key, Number(e.target.value))}
-        style={{ width: '100%' }}
       />
     </div>
   )

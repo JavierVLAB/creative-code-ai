@@ -54,3 +54,24 @@ export interface SelectControl {
 }
 
 export type Control = SliderControl | SelectControl
+
+// Valores activos de los parámetros en la UI (clave del control → valor)
+export type ParamValues = Record<string, string | number>
+
+// Mensaje del chat con el agente IA.
+// El envío real al backend llega en el change `frontend-agent`; aquí la UI es stub.
+export interface ChatMessage {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+}
+
+// Snapshot: combinación guardada de valores de parámetros de un proyecto.
+// Persistido en la tabla `snapshots` de Supabase (columna `values`).
+export interface Snapshot {
+  id: string
+  projectId: string
+  label: string
+  values: ParamValues
+  createdAt: string
+}
