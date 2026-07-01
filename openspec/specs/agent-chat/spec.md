@@ -1,6 +1,10 @@
-# Spec: agent-chat
+# agent-chat Specification
 
-Define los requisitos del panel de chat del agente dentro del workspace.
+## Purpose
+
+Definir el panel de chat del agente dentro del workspace: historial local, envío al backend Mastra, estados de carga/error, preguntas aclaratorias y sugerencias de memoria aprobadas por el usuario.
+
+## Requirements
 
 ---
 

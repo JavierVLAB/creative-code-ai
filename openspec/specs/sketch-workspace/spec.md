@@ -1,6 +1,10 @@
-# Spec: sketch-workspace
+# sketch-workspace Specification
 
-Define los requisitos del workspace: iframe del sketch, controles generados desde config.yaml y protocolo postMessage.
+## Purpose
+
+Definir los requisitos del workspace: iframe aislado del sketch, controles generados desde config.yaml, protocolo postMessage y aplicación de cambios producidos por el agente.
+
+## Requirements
 
 ---
 
