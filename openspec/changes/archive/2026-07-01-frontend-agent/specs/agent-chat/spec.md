@@ -37,8 +37,17 @@ La app SHALL deshabilitar el input y mostrar un indicador de carga mientras espe
 La app SHALL mostrar un mensaje de error en el chat si la llamada al backend falla (timeout, 5xx, red caída). El error no rompe el workspace.
 
 #### Scenario: Error de red
-- **WHEN** la llamada a `POST /api/agent` falla
+- **WHEN** la llamada a `POST /agent` falla
 - **THEN** aparece un mensaje en el chat ("No pude conectar con el agente, inténtalo de nuevo") y el input se habilita
+
+### Requirement: El chat envía el contexto actual del sketch al agente
+Cada mensaje del usuario SHALL enviarse a `POST /agent` con Bearer token de Supabase y con el contexto completo del sketch actual.
+
+#### Scenario: Envío al backend
+- **WHEN** el usuario envía un mensaje desde el workspace
+- **THEN** la app llama a `POST /agent`
+- **THEN** el body incluye `projectId`, `message`, `sketchJs`, `configYaml`, `renderer` y opcionalmente `previousResponse`
+- **THEN** el header incluye `Authorization: Bearer <supabase-jwt>`
 
 ### Requirement: El chat muestra preguntas aclaratorias del agente
 Cuando la respuesta incluye `pendingQuestion`, la app SHALL mostrar la pregunta como un mensaje del agente y bloquear el input con el placeholder "Responde la pregunta del agente...".
@@ -48,7 +57,7 @@ Cuando la respuesta incluye `pendingQuestion`, la app SHALL mostrar la pregunta 
 - **THEN** el mensaje del agente muestra la pregunta y el input tiene un placeholder diferente
 
 ### Requirement: El banner de sugerencia de memoria permite aprobar o ignorar
-Cuando la respuesta incluye `memorySuggestion`, la app SHALL mostrar un banner encima del input con el texto sugerido y dos botones: "Guardar" y "Ignorar". Al guardar, escribe el texto en `projects.project_memory`. El banner desaparece tras la acción o al enviar el siguiente mensaje.
+Cuando la respuesta incluye `memorySuggestion`, la app SHALL mostrar un banner encima del input con el texto sugerido y dos botones: "Guardar" y "Ignorar". Al guardar, escribe el texto en `projects.memory`. El banner desaparece tras la acción o al enviar el siguiente mensaje.
 
 #### Scenario: Agente sugiere una nota de memoria
 - **WHEN** la respuesta incluye `memorySuggestion`
@@ -56,7 +65,7 @@ Cuando la respuesta incluye `memorySuggestion`, la app SHALL mostrar un banner e
 
 #### Scenario: Usuario aprueba la sugerencia
 - **WHEN** el usuario hace clic en "Guardar"
-- **THEN** la app actualiza `projects.project_memory` en Supabase y el banner desaparece
+- **THEN** la app actualiza `projects.memory` en Supabase y el banner desaparece
 
 #### Scenario: Usuario ignora la sugerencia
 - **WHEN** el usuario hace clic en "Ignorar" o envía un nuevo mensaje

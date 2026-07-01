@@ -1,7 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import type { RefObject } from 'react'
 import type { SketchConfig } from '../../lib/types'
 import { generateControls } from '../../lib/controls'
+import { getSketchSyncMode } from '../../lib/sketch-sync'
 import { parseSketchConfig } from '../../lib/yaml'
 import { defaultValues } from '../../hooks/useSketch'
 
@@ -78,14 +79,17 @@ interface SketchViewerProps {
   status: 'idle' | 'loading' | 'ready' | 'error'
   errorMessage: string | null
   sendInit: (config: SketchConfig, values: Record<string, unknown>) => void
+  sendRestart: (config: SketchConfig, values: Record<string, unknown>) => void
   onControlsReady?: (controls: ReturnType<typeof generateControls>) => void
   // Tamaño del lienzo; el iframe se renderiza centrado con estas dimensiones (look del prototipo)
   canvasSize: { width: number; height: number }
 }
 
-export function SketchViewer({ sketchJs, configYaml, iframeRef, status, errorMessage, sendInit, onControlsReady, canvasSize }: SketchViewerProps) {
+export function SketchViewer({ sketchJs, configYaml, iframeRef, status, errorMessage, sendInit, sendRestart, onControlsReady, canvasSize }: SketchViewerProps) {
   const effectiveSketchJs = sketchJs ?? DEMO_SKETCH_JS
   const effectiveConfigYaml = configYaml ?? DEMO_CONFIG_YAML
+  const previousSketchRef = useRef<string | null>(null)
+  const previousConfigRef = useRef<string | null>(null)
 
   useEffect(() => {
     let config: SketchConfig | null = null
@@ -98,9 +102,19 @@ export function SketchViewer({ sketchJs, configYaml, iframeRef, status, errorMes
     if (config) {
       const controls = generateControls(config)
       const values = defaultValues(controls)
+      const previousSketch = previousSketchRef.current
+      const previousConfig = previousConfigRef.current
+      const syncMode = getSketchSyncMode(previousSketch, previousConfig, effectiveSketchJs, effectiveConfigYaml)
+
+      previousSketchRef.current = effectiveSketchJs
+      previousConfigRef.current = effectiveConfigYaml
       onControlsReady?.(controls)
       // Pequeño delay para que el iframe cargue
-      setTimeout(() => sendInit(config!, values), 200)
+      if (syncMode === 'restart') {
+        sendRestart(config, values)
+      } else {
+        setTimeout(() => sendInit(config!, values), 200)
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveSketchJs, effectiveConfigYaml])

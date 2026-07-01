@@ -41,6 +41,7 @@ interface SidebarProps {
   // undefined = agente aún no disponible; ChatPanel deshabilita el input
   onChatSend?: (text: string) => void
   chatLoading?: boolean
+  pendingQuestion?: string | null
   // MemoryProposalCard: se renderiza solo si hay sugerencia pendiente
   memorySuggestion?: string | null
   onMemoryApprove: (text: string) => void
@@ -62,6 +63,7 @@ export function Sidebar({
   messages,
   onChatSend,
   chatLoading,
+  pendingQuestion,
   memorySuggestion,
   onMemoryApprove,
   onMemoryIgnore,
@@ -209,6 +211,7 @@ export function Sidebar({
           messages={messages}
           onSend={onChatSend}
           isLoading={chatLoading}
+          pendingQuestion={pendingQuestion}
         />
       </div>
     </aside>

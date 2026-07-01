@@ -222,7 +222,7 @@ erDiagram
         text sketch_js
         text config_yaml
         text renderer
-        text project_memory
+        text memory
         timestamptz created_at
         timestamptz updated_at
     }
@@ -274,7 +274,7 @@ create table projects (
   sketch_js      text not null default '',
   config_yaml    text not null default '',
   renderer       text not null default 'p5js' check (renderer in ('p5js', 'threejs')),
-  project_memory text,
+  memory         text,
   created_at     timestamptz not null default now(),
   updated_at     timestamptz not null default now()
 );
@@ -310,7 +310,9 @@ create index on assets (project_id);
 
 ## 4. Especificación de la API
 
-El agente se expone como **API REST gestionada por Mastra**: al registrar los agentes, el servidor (Hono) publica automáticamente sus endpoints y genera la spec OpenAPI en `/api/openapi.json` (con Swagger UI en `/swagger-ui`). `@mastra/client-js` es un cliente tipado sobre esa API. El endpoint principal:
+El agente se expone desde el backend Mastra mediante una **ruta custom** que encapsula el contrato específico de CurateArtAI: autenticación con token de Supabase, contexto completo del sketch, `threadId = projectId`, `resourceId = user.id`, ejecución del workflow de guardrails y respuesta estructurada lista para el frontend.
+
+Mastra también publica rutas built-in como `POST /api/agents/{agentId}/generate`, pero el MVP usa `POST /agent` para mantener un contrato más simple entre el workspace y el backend.
 
 ```yaml
 openapi: 3.0.0
@@ -318,33 +320,25 @@ info:
   title: CurateArtAI — API del agente (Mastra)
   version: 0.1.0
 paths:
-  /api/agents/{agentId}/generate:
+  /agent:
     post:
       summary: Envía una instrucción en lenguaje natural y devuelve los archivos del sketch modificados.
       security:
         - bearerAuth: []          # token de sesión de Supabase
-      parameters:
-        - name: agentId
-          in: path
-          required: true
-          schema: { type: string }
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [messages, threadId, resourceId]
+              required: [projectId, message, sketchJs, configYaml, renderer]
               properties:
-                messages:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      role:    { type: string, enum: [user, assistant] }
-                      content: { type: string }
-                threadId:   { type: string, format: uuid, description: "id del proyecto" }
-                resourceId: { type: string, format: uuid, description: "id del usuario" }
+                projectId:        { type: string, format: uuid, description: "id del proyecto; también threadId del agente" }
+                message:          { type: string, description: "instrucción del usuario" }
+                sketchJs:         { type: string, description: "sketch.js actual completo" }
+                configYaml:       { type: string, description: "config.yaml actual completo" }
+                renderer:         { type: string, enum: [p5js, threejs] }
+                previousResponse: { type: string, description: "respuesta anterior, opcional, para detectar repeticiones" }
       responses:
         '200':
           description: Respuesta del agente.
@@ -361,6 +355,8 @@ paths:
                   pendingQuestion:   { type: string, description: "si el agente necesita aclaración" }
         '401':
           description: Token de sesión ausente o inválido.
+        '400':
+          description: Body inválido o incompleto.
 components:
   securitySchemes:
     bearerAuth:
@@ -396,7 +392,7 @@ Otros contratos del sistema, fuera de esta API REST:
 
 ## 6. Tickets de trabajo
 
-> Tres tickets representativos —uno de base de datos, uno de backend y uno de frontend—. El backlog completo está organizado en infraestructura, auth/datos, agente, frontend, curación/producción y calidad.
+> Cuatro tickets representativos —base de datos, backend, visor frontend y conexión chat-agente—. El backlog completo está organizado en infraestructura, auth/datos, agente, frontend, curación/producción y calidad.
 
 **Ticket 1 (Base de datos) — Esquema Supabase + RLS**
 - **Historias:** H1, biblioteca y persistencia.
@@ -405,9 +401,9 @@ Otros contratos del sistema, fuera de esta API REST:
 - **Criterios de aceptación:** un usuario solo ve sus filas y el acceso cruzado queda bloqueado; borrar un proyecto arrastra sus snapshots y assets; las migraciones son reproducibles desde cero.
 
 **Ticket 2 (Backend) — Agente Mastra con salida estructurada**
-- **Historia:** H4 (edición con el agente).
+- **Historia:** H3 (edición con el agente).
 - **Descripción:** agente que recibe una instrucción en lenguaje natural y devuelve `config.yaml`/`sketch.js` modificados, con salida estructurada, tools y guardrails.
-- **Tareas:** definir el Agent y las tools `edit_params`, `edit_sketch`, `update_memory`; schema Zod de salida (`response`, `appliedConfigYaml?`, `appliedSketchJs?`, `memorySuggestion?`, `pendingQuestion?`); workflow de guardrails A/B/C; auth con `@mastra/auth-supabase`; memoria con `@mastra/pg`.
+- **Tareas:** definir el Agent y las tools `edit_params`, `edit_sketch`, `update_memory`; schema Zod de salida (`response`, `appliedConfigYaml?`, `appliedSketchJs?`, `memorySuggestion?`, `pendingQuestion?`); workflow de guardrails A/B/C; verificación del token Supabase en la ruta custom `POST /agent`; memoria con `@mastra/pg`.
 - **Criterios de aceptación:** devuelve un objeto válido según el schema; cada tool valida su salida (YAML parseable / JS sin errores evidentes); los guardrails cortan bucles y fallos repetidos; una petición sin token válido devuelve 401; el historial se recupera al reabrir el proyecto.
 
 **Ticket 3 (Frontend) — Visor del sketch**
@@ -415,6 +411,12 @@ Otros contratos del sistema, fuera de esta API REST:
 - **Descripción:** componente que monta el sketch en un `<iframe>` aislado, le inyecta los valores y gestiona la comunicación por `postMessage`.
 - **Tareas:** iframe sandboxed con su HTML de arranque; inyección de `window.__SKETCH__` (config + valores); manejo de `SKETCH_READY`/`SKETCH_ERROR`; ciclo de vida de las blob URLs (crear/revocar); recarga al cambiar el canvas; actualización en tiempo real al mover un control.
 - **Criterios de aceptación:** el sketch monta y renderiza; mover un control actualiza el sketch al instante; un error del sketch se muestra sin romper la app; no se filtran blob URLs entre recargas.
+
+**Ticket 4 (Frontend + Agente) — Chat del workspace conectado al agente**
+- **Historia:** H3 (edición con el agente).
+- **Descripción:** conectar el panel de chat del workspace con `POST /agent` para enviar instrucciones en lenguaje natural, aplicar la respuesta estructurada del agente al sketch y persistir los cambios del proyecto.
+- **Tareas:** crear `useAgent`; enviar `{ projectId, message, sketchJs, configYaml, renderer, previousResponse? }` con Bearer token; mantener historial local de la sesión; mostrar loading, errores y `pendingQuestion`; persistir `appliedSketchJs` en `projects.sketch_js` y `appliedConfigYaml` en `projects.config_yaml`; regenerar controles o recargar iframe según qué cambió; guardar `memorySuggestion` aprobado en `projects.memory`; actualizar `projects.updated_at`.
+- **Criterios de aceptación:** el usuario puede pedir un cambio desde el chat y verlo reflejado en el sketch; una respuesta conversacional no recarga el iframe; una configuración inválida no se persiste; las sugerencias de memoria solo se guardan con aprobación explícita; errores de red/auth se muestran sin romper el workspace.
 
 ---
 

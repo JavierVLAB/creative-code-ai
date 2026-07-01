@@ -1,21 +1,37 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
-import type { Database, Json } from '../lib/database.types'
-import type { Control, Snapshot, ChatMessage, ParamValues, SketchConfig } from '../lib/types'
-import { parseSketchConfig, serializeSketchConfig } from '../lib/yaml'
-import { useSketch } from '../hooks/useSketch'
-import { SketchViewer } from '../components/workspace/SketchViewer'
-import { Sidebar } from '../components/workspace/Sidebar'
+
 import { FileExplorerPanel } from '../components/workspace/FileExplorerPanel'
-import { EditorPanel } from '../components/workspace/EditorPanel'
 import { DevPanel } from '../components/workspace/DevPanel'
+import { EditorPanel } from '../components/workspace/EditorPanel'
+import { Sidebar } from '../components/workspace/Sidebar'
+import { SketchViewer } from '../components/workspace/SketchViewer'
+import { generateControls } from '../lib/controls'
+import { buildMemoryPatch, formatAgentApplySummary, getAgentChangeSet, inferRenderer } from '../lib/agent'
+import { parseSketchConfig, serializeSketchConfig } from '../lib/yaml'
+import { supabase } from '../lib/supabase'
+import { defaultValues, useSketch } from '../hooks/useSketch'
+import { useAgent } from '../hooks/useAgent'
+
+import type { Database, Json } from '../lib/database.types'
+import type { AgentResponse, ChatMessage, Control, ParamValues, SketchConfig, Snapshot } from '../lib/types'
 
 type Project = Database['public']['Tables']['projects']['Row']
 type SnapshotRow = Database['public']['Tables']['snapshots']['Row']
 
 const DEFAULT_CANVAS = { width: 600, height: 600 }
 const EDITOR_DEBOUNCE_MS = 1500
+const WELCOME_MESSAGE: ChatMessage = {
+  id: 'welcome',
+  role: 'assistant',
+  content: 'Hola, soy tu asistente de arte generativo. Pídeme cambios sobre el sketch o pregúntame por el proyecto.',
+}
+
+type ProjectPatch = Database['public']['Tables']['projects']['Update']
+
+function createMessage(role: ChatMessage['role'], content: string): ChatMessage {
+  return { id: `${Date.now()}-${crypto.randomUUID()}`, role, content }
+}
 
 // Mapea una fila de la tabla snapshots al tipo de dominio Snapshot.
 function mapSnapshot(row: SnapshotRow): Snapshot {
@@ -52,11 +68,13 @@ export function WorkspacePage() {
   const [editorContent, setEditorContent] = useState('')
   const [loading, setLoading] = useState(true)
 
-  // El chat y la memoria llegan en el change `frontend-agent`; aquí son stubs.
-  const [messages] = useState<ChatMessage[]>([])
+  const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE])
   const [memorySuggestion, setMemorySuggestion] = useState<string | null>(null)
+  const [pendingQuestion, setPendingQuestion] = useState<string | null>(null)
+  const [previousResponse, setPreviousResponse] = useState<string | undefined>(undefined)
 
-  const { iframeRef, status, errorMessage, sendInit, sendUpdate } = useSketch()
+  const { iframeRef, status, errorMessage, sendInit, sendUpdate, sendRestart } = useSketch()
+  const { sendMessage, loading: agentLoading } = useAgent()
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Carga el proyecto y sus snapshots al montar (o al cambiar de proyecto).
@@ -92,6 +110,83 @@ export function WorkspacePage() {
     const newValues = { ...values, [key]: value }
     setValues(newValues)
     sendUpdate(newValues)
+  }
+
+  async function applyAgentResponse(result: AgentResponse) {
+    if (!project) return
+
+    const { hasSketchChange, hasConfigChange } = getAgentChangeSet(result)
+    if (!hasSketchChange && !hasConfigChange) return
+
+    let nextConfig: SketchConfig | null = null
+    if (hasConfigChange && result.appliedConfigYaml) {
+      nextConfig = parseSketchConfig(result.appliedConfigYaml)
+    }
+
+    const patch: ProjectPatch = { updated_at: new Date().toISOString() }
+    if (hasSketchChange) patch.sketch_js = result.appliedSketchJs
+    if (hasConfigChange) patch.config_yaml = result.appliedConfigYaml
+
+    const { error } = await supabase.from('projects').update(patch).eq('id', project.id)
+    if (error) throw new Error('No pude guardar los cambios del agente en Supabase.')
+
+    if (nextConfig && result.appliedConfigYaml) {
+      const nextControls = generateControls(nextConfig)
+      const nextValues = defaultValues(nextControls)
+      setControls(nextControls)
+      setValues(nextValues)
+      setCanvasSize({ width: nextConfig.modules.canvas.width, height: nextConfig.modules.canvas.height })
+    }
+
+    setProject(prev => (prev ? { ...prev, ...patch } : prev))
+    if (activeFile === 'sketch.js' && result.appliedSketchJs) setEditorContent(result.appliedSketchJs)
+    if (activeFile === 'config.yaml' && result.appliedConfigYaml) setEditorContent(result.appliedConfigYaml)
+  }
+
+  async function handleChatSend(text: string) {
+    if (!project) return
+
+    setMemorySuggestion(null)
+    setPendingQuestion(null)
+    setMessages(prev => [...prev, createMessage('user', text)])
+
+    try {
+      const result = await sendMessage({
+        projectId: project.id,
+        message: text,
+        sketchJs: project.sketch_js ?? '',
+        configYaml: project.config_yaml ?? '',
+        renderer: inferRenderer(project.sketch_js ?? ''),
+        previousResponse,
+      })
+
+      await applyAgentResponse(result)
+      setPreviousResponse(result.response)
+      setPendingQuestion(result.pendingQuestion ?? null)
+      setMemorySuggestion(result.memorySuggestion ?? null)
+      const content = result.pendingQuestion ?? `${result.response}\n\n${formatAgentApplySummary(result)}`
+      setMessages(prev => [...prev, createMessage('assistant', content)])
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'No pude conectar con el agente, inténtalo de nuevo.'
+      setMessages(prev => [...prev, createMessage('error', message)])
+    }
+  }
+
+  async function handleMemoryApprove(text: string) {
+    if (!project) return
+    const memoryPatch = buildMemoryPatch(project.memory, text, true)
+    if (!memoryPatch) return
+
+    const patch: ProjectPatch = { memory: memoryPatch.memory, updated_at: memoryPatch.updatedAt }
+    const { error } = await supabase.from('projects').update(patch).eq('id', project.id)
+
+    if (error) {
+      setMessages(prev => [...prev, createMessage('error', 'No pude guardar la memoria del proyecto.')])
+      return
+    }
+
+    setProject(prev => (prev ? { ...prev, memory: memoryPatch.memory, updated_at: memoryPatch.updatedAt } : prev))
+    setMemorySuggestion(null)
   }
 
   // Aplica un nuevo tamaño de canvas: reescribe config.yaml, lo persiste y deja
@@ -177,6 +272,7 @@ export function WorkspacePage() {
           status={status}
           errorMessage={errorMessage}
           sendInit={sendInit}
+          sendRestart={sendRestart}
           onControlsReady={handleControlsReady}
           canvasSize={canvasSize}
         />
@@ -216,8 +312,11 @@ export function WorkspacePage() {
           onSnapshotSave={handleSnapshotSave}
           onSnapshotLoad={handleSnapshotLoad}
           messages={messages}
+          onChatSend={handleChatSend}
+          chatLoading={agentLoading}
+          pendingQuestion={pendingQuestion}
           memorySuggestion={memorySuggestion}
-          onMemoryApprove={() => setMemorySuggestion(null)}
+          onMemoryApprove={handleMemoryApprove}
           onMemoryIgnore={() => setMemorySuggestion(null)}
         />
       </div>

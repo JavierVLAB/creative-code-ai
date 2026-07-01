@@ -31,6 +31,7 @@ interface ChatMessageProps {
 
 export function ChatMessageItem({ message }: ChatMessageProps) {
   const isUser = message.role === 'user'
+  const isError = message.role === 'error'
   const parts = parseMessageParts(message.content)
 
   return (
@@ -50,7 +51,7 @@ export function ChatMessageItem({ message }: ChatMessageProps) {
         letterSpacing: '0.06em',
         textTransform: 'uppercase',
       }}>
-        {isUser ? 'Tú' : 'IA'}
+        {isUser ? 'Tú' : isError ? 'Error' : 'IA'}
       </span>
 
       {/* Burbuja del mensaje: color diferente según el rol */}
@@ -62,7 +63,7 @@ export function ChatMessageItem({ message }: ChatMessageProps) {
         border: isUser ? 'var(--border-width) solid var(--line)' : 'none',
         fontSize: 'var(--font-size-xs)',
         lineHeight: 1.6,
-        color: isUser ? 'var(--t1)' : 'var(--t2)',
+        color: isError ? 'var(--color-error-soft)' : isUser ? 'var(--t1)' : 'var(--t2)',
         display: 'flex',
         flexDirection: 'column',
         gap: 'var(--space-1)',

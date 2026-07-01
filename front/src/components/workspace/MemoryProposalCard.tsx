@@ -1,11 +1,11 @@
-// Tarjeta de aprobación de propuesta de actualización de project.md.
+// Tarjeta de aprobación de sugerencias explícitas para la memoria del proyecto.
 // Aparece cuando el agente sugiere documentar algo al final de un turno.
 // El estado de edición es local: el padre solo recibe el texto final al aprobar.
 
 import { useState } from 'react'
 
 interface MemoryProposalCardProps {
-  // Texto propuesto por el agente para añadir a project.md
+  // Texto propuesto por el agente para añadir a projects.memory
   suggestion: string
   // Se llama con el texto final (posiblemente editado por el usuario)
   onApprove: (text: string) => void
@@ -37,7 +37,7 @@ export function MemoryProposalCard({ suggestion, onApprove, onIgnore }: MemoryPr
         textTransform: 'uppercase',
         fontWeight: 500,
       }}>
-        Añadir a project.md
+        Guardar memoria
       </div>
 
       {/* Contenido: textarea en modo edición, texto plano en modo vista */}
@@ -91,7 +91,7 @@ export function MemoryProposalCard({ suggestion, onApprove, onIgnore }: MemoryPr
             fontWeight: 500,
           }}
         >
-          Añadir
+          Guardar
         </button>
 
         {/* Alterna entre modo edición y vista previa sin perder el texto */}

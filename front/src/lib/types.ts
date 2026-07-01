@@ -1,3 +1,5 @@
+// Tipos de dominio compartidos por el workspace, el agente y la UI.
+
 export interface CanvasConfig {
   width: number
   height: number
@@ -62,8 +64,27 @@ export type ParamValues = Record<string, string | number>
 // El envío real al backend llega en el change `frontend-agent`; aquí la UI es stub.
 export interface ChatMessage {
   id: string
-  role: 'user' | 'assistant'
+  role: 'user' | 'assistant' | 'error'
   content: string
+}
+
+export type SketchRenderer = 'p5js' | 'threejs'
+
+export interface AgentRequest {
+  projectId: string
+  message: string
+  sketchJs: string
+  configYaml: string
+  renderer: SketchRenderer
+  previousResponse?: string
+}
+
+export interface AgentResponse {
+  response: string
+  appliedConfigYaml?: string
+  appliedSketchJs?: string
+  memorySuggestion?: string
+  pendingQuestion?: string
 }
 
 // Snapshot: combinación guardada de valores de parámetros de un proyecto.

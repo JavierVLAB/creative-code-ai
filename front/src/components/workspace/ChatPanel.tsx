@@ -10,9 +10,10 @@ interface ChatPanelProps {
   // undefined = agente no disponible aún; se deshabilita el input
   onSend?: (text: string) => void
   isLoading?: boolean
+  pendingQuestion?: string | null
 }
 
-export function ChatPanel({ messages, onSend, isLoading = false }: ChatPanelProps) {
+export function ChatPanel({ messages, onSend, isLoading = false, pendingQuestion = null }: ChatPanelProps) {
   const [draft, setDraft] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const messagesRef = useRef<HTMLDivElement>(null)
@@ -44,6 +45,7 @@ export function ChatPanel({ messages, onSend, isLoading = false }: ChatPanelProp
 
   // El botón está activo solo si hay texto, el agente está listo y no está cargando
   const canSend = draft.trim().length > 0 && agentReady && !isLoading
+  const placeholder = pendingQuestion ? 'Responde la pregunta del agente...' : 'Pide un cambio al agente...'
 
   return (
     <div style={{
@@ -93,12 +95,12 @@ export function ChatPanel({ messages, onSend, isLoading = false }: ChatPanelProp
         disabled={!agentReady || isLoading}
         onChange={e => setDraft(e.target.value)}
         onKeyDown={e => {
-          if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+          if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault()
             handleSend()
           }
         }}
-        placeholder={agentReady ? 'Pide un cambio al agente...' : 'Conectando con el agente...'}
+        placeholder={agentReady ? placeholder : 'Conectando con el agente...'}
         title={agentReady ? undefined : 'Conectando con el agente...'}
         rows={2}
         style={{
@@ -140,7 +142,7 @@ export function ChatPanel({ messages, onSend, isLoading = false }: ChatPanelProp
           ? 'Pensando...'
           : !agentReady
             ? 'Conectando...'
-            : <>{' '}Enviar <span style={{ opacity: 0.5, fontSize: 'var(--font-size-section-title)' }}>⌘↵</span></>
+            : 'Enviar'
         }
       </button>
     </div>
