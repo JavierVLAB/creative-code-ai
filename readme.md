@@ -1,4 +1,4 @@
-# CurateArtAI — Documentación técnica
+# CurateArtAI — Documentación de producto y diseño técnico
 
 ## Índice
 
@@ -29,11 +29,11 @@ Plataforma web que separa la capa de exploración de la capa de código: artista
 
 ### 0.4. URL del proyecto
 
-Pendiente. El proyecto se desplegará en la entrega final.
+Pendiente de despliegue público.
 
 ### 0.5. URL del repositorio
 
-Pendiente de rellenar con el fork de `AI4Devs-finalproject`.
+Pendiente de publicar o enlazar.
 
 ---
 
@@ -41,9 +41,9 @@ Pendiente de rellenar con el fork de `AI4Devs-finalproject`.
 
 ### 1.1. Objetivo
 
-El arte generativo de código tiene dos capas hoy enredadas. La **capa de código** define el sistema (el algoritmo, sus reglas, su estética); la **capa de exploración** es la búsqueda de la pieza concreta dentro de ese sistema —mover un radio, cambiar una paleta— y la curación de las variaciones que valen la pena. Programar obliga a mezclarlas: para probar una variante hay que volver al editor, cambiar un número, recargar y mirar.
+El arte generativo de código tiene dos capas que hoy están enredadas. La **capa de código** define el sistema: el algoritmo, sus reglas, su estética. La **capa de exploración** es la búsqueda de la pieza concreta dentro de ese sistema —mover un radio, cambiar una paleta, subir el número de iteraciones— y la curación de las variaciones que merecen la pena. Programar obliga a mezclarlas: para probar una variante hay que volver al editor, editar un número, recargar y mirar. La exploración queda atrapada dentro del flujo de escribir código.
 
-**CurateArtAI separa ambas capas.** Toma un sketch y lo convierte en una herramienta explorable y curable: expone sus parámetros como controles visuales, deja pedir cambios en lenguaje natural a un agente que edita el código, y permite guardar, comparar y curar las variaciones.
+**CurateArtAI separa ambas capas.** Toma un sketch (p5.js / three.js) y lo convierte en una herramienta explorable y curable: expone sus parámetros como controles visuales, deja pedir cambios en lenguaje natural a un agente que edita el código, y permite guardar, comparar y curar las variaciones resultantes.
 
 Resuelve tres problemas a la vez:
 
@@ -51,17 +51,33 @@ Resuelve tres problemas a la vez:
 - **Quien programa pierde tiempo en lo repetitivo:** explorar variaciones es un bucle manual de editar-recargar-mirar.
 - **No existe una capa de curación:** cuando una exploración da decenas de resultados, no hay forma cómoda de capturarlos, compararlos y quedarse con los mejores.
 
-**Para quién:** artistas generativos, creative technologists, diseñadores, educadores y estudiantes que quieren explorar y curar variaciones de un sketch sin programar, o programando lo mínimo.
+CurateArtAI vive **entre escribir código y producir la pieza final**, asistido por IA. No compite con el editor donde se escribe el algoritmo ni con la herramienta donde se publica el resultado: ocupa el hueco intermedio de explorar y curar.
+
+**Para quién:** artistas generativos, creative technologists, diseñadores, educadores, estudiantes y curiosos que quieren explorar y curar variaciones de un sketch sin programar, o programando lo mínimo. Incluye tanto al artista que ya escribe su propio código y quiere acelerar la exploración, como al no-programador que quiere intervenir una pieza sin tocar una línea.
+
+**Qué no es:** no es un IDE generalista, no es una herramienta de live-coding/VJ en tiempo real y no reemplaza al sketch. Lo envuelve: el código sigue siendo la fuente de verdad.
 
 ### 1.2. Características y funcionalidades principales
 
-Agrupadas por área. El MVP del curso cubre un subconjunto; el resto marca la evolución del producto.
+Agrupadas por área. La versión actual cubre un subconjunto; el resto marca la evolución del producto.
 
 - **Cuentas y biblioteca:** registro/login con sesión persistente; biblioteca de proyectos en la nube (crear, abrir, guardar, borrar).
 - **Exploración:** visor del sketch en iframe aislado; controles de parámetros generados automáticamente desde la configuración.
 - **Agente de IA:** edición de configuración y código en lenguaje natural; generación de un sketch completo desde una descripción; historial de conversación por proyecto; memoria de proyecto que el agente lee y propone actualizar; editor de código y explorador de archivos como apoyo.
 - **Curación:** snapshots de parámetros; (visión) generación por lotes de variaciones y grid de comparación con favoritas.
 - **Producción y export (visión):** alta resolución, SVG para pen plotter, separación de capas para serigrafía.
+
+**Objetivos del producto**
+- Separar la capa de exploración de la capa de código: parametrizar un sketch sin tocar el código.
+- Editar el sketch (parámetros y código) con un agente de IA en lenguaje natural.
+- Curar variaciones: capturarlas, compararlas y conservar las mejores.
+- Guardar y recuperar proyectos por usuario, entre sesiones y dispositivos.
+
+**Métricas de éxito**
+- Un usuario sin conocimientos de código modifica visiblemente un sketch en menos de un minuto desde que abre un proyecto.
+- Una instrucción típica al agente ("haz las líneas rojas", "añade un parámetro de velocidad") se resuelve en un solo turno y deja el sketch funcionando.
+- El usuario captura al menos una variación como snapshot y la recupera intacta.
+- El proyecto se recupera idéntico al reabrirlo en otra sesión.
 
 ### 1.3. Diseño y experiencia de usuario
 
@@ -72,15 +88,53 @@ El espacio de trabajo es de tema oscuro con paneles flotantes sobre un fondo de 
 3. Ve el sketch y sus controles, generados desde la configuración.
 4. Explora moviendo controles y/o pide un cambio al agente en lenguaje natural.
 5. El agente modifica el código o los parámetros y devuelve el resultado.
-6. La app aplica el cambio, recarga el sketch y guarda el proyecto.
-7. Captura como snapshot las variaciones que quiere conservar.
-8. Al volver, encuentra su proyecto, parámetros, snapshots e historial intactos.
+6. La aplicación aplica el cambio, recarga el sketch y guarda el proyecto.
+7. El usuario investiga distintos parámetros para obtener variaciones y curar las mejores piezas.
+8. Guarda un snapshot de los resultados más interesantes.
+9. Al volver, encuentra su proyecto, parámetros, snapshots e historial intactos.
 
-> Capturas de pantalla y vídeo de la experiencia: pendientes para la entrega final.
+> Capturas de pantalla y vídeo de la experiencia: pendientes.
 
 ### 1.4. Instrucciones de instalación
 
-Pendiente. Se documentará en la entrega 2, cuando exista código ejecutable (front, backend y conexión a Supabase).
+Requisitos:
+- Node.js 24.
+- pnpm 11 (el proyecto fija `packageManager: pnpm@11.9.0` en `front/` y `backend/`).
+- Proyecto Supabase con las migraciones de `supabase/migrations/` aplicadas.
+
+Instalación del frontend:
+
+```bash
+cd front
+pnpm install
+pnpm dev
+```
+
+Variables de entorno del frontend (`front/.env`):
+
+```bash
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_PUBLISHABLE_KEY=...
+VITE_API_URL=http://localhost:4111
+```
+
+Instalación del backend:
+
+```bash
+cd backend
+pnpm install
+pnpm dev
+```
+
+Variables de entorno del backend:
+
+```bash
+SUPABASE_URL=...
+SUPABASE_SECRET_KEY=...
+DATABASE_URL=...
+```
+
+Las migraciones versionadas están en `supabase/migrations/`. El despliegue público, sus URLs y las variables finales quedan pendientes.
 
 ---
 
@@ -161,9 +215,23 @@ A alto nivel, el proyecto se organiza en dos servicios desplegables por separado
 
 - **`front/`** — la SPA de React (UI, visor del sketch, controles, chat, editor).
 - **`backend/`** — el servicio de agentes Mastra (Agent, tools, workflow, memoria).
-- **Supabase** — proyecto gestionado (esquema, RLS, Storage), versionado con migraciones SQL.
+- **`shared/`** — tipos TypeScript compartidos entre frontend y backend.
+- **`supabase/migrations/`** — esquema SQL versionado, RLS y cambios de datos.
+- **`openspec/`** — especificaciones, propuestas y cambios del proceso OpenSpec.
 
-> La estructura detallada de carpetas se concretará en la entrega 2, al materializar el código.
+```txt
+.
+├── front/                 # SPA Vite + React + TypeScript
+│   ├── src/components/    # Componentes React por área
+│   ├── src/hooks/         # Hooks de sesión, proyectos, sketch y agente
+│   ├── src/lib/           # Lógica de dominio: YAML, Supabase, agente, sync del sketch
+│   └── public/            # Assets estáticos
+├── backend/               # Servicio Mastra
+│   └── src/mastra/        # Agents, tools y workflows
+├── shared/                # Tipos compartidos
+├── supabase/migrations/   # Migraciones SQL
+└── openspec/              # Especificaciones y cambios
+```
 
 ### 2.4. Infraestructura y despliegue
 
@@ -173,7 +241,7 @@ A alto nivel, el proyecto se organiza en dos servicios desplegables por separado
 | Backend (Mastra) | Render |
 | Datos / Auth / Storage | Supabase (Postgres gestionado) |
 
-Cada servicio se despliega en su propia nube; no se usan contenedores propios. Los secretos (claves de LLM y `service_role`) viven solo en el backend; el cliente usa la `anon key` pública. El proceso de despliegue se detallará en la entrega final.
+Cada servicio se despliega en su propia nube; no se usan contenedores propios. Los secretos (claves de LLM, `service_role` y `DATABASE_URL`) viven solo en el backend; el cliente usa la clave publicable de Supabase. El proceso concreto de despliegue, las URLs públicas y las variables finales quedan pendientes.
 
 ### 2.5. Seguridad
 
@@ -183,11 +251,11 @@ Cada servicio se despliega en su propia nube; no se usan contenedores propios. L
 
 ### 2.6. Tests
 
-Plan de pruebas (se implementa en las entregas 2 y final):
+Pruebas previstas y parcialmente implementadas:
 
-- **Unitarios** (Vitest): parseo de `config.yaml`, generación de controles, validación de salida de las tools.
-- **Integración**: CRUD con RLS, contrato del agente.
-- **E2E** (Playwright): flujo principal login → crear → editar con el agente → persistir → recuperar.
+- **Unitarios** (Vitest): parseo de `config.yaml`, generación de controles, sincronización del sketch, hook del agente y tools del backend.
+- **Integración**: CRUD con RLS y contrato del agente.
+- **E2E** (pendiente): flujo principal login → crear → editar con el agente → persistir → recuperar.
 
 ---
 
@@ -251,7 +319,7 @@ erDiagram
     }
 ```
 
-> `VARIATIONS` y el campo `kind` de `ASSETS` dan soporte a la visión de curación y producción; no forman parte del MVP del curso.
+> `VARIATIONS` y el campo `kind` de `ASSETS` dan soporte a la visión de curación y producción; no forman parte de la versión actual.
 
 ### 3.2. Descripción de entidades principales
 
@@ -312,7 +380,7 @@ create index on assets (project_id);
 
 El agente se expone desde el backend Mastra mediante una **ruta custom** que encapsula el contrato específico de CurateArtAI: autenticación con token de Supabase, contexto completo del sketch, `threadId = projectId`, `resourceId = user.id`, ejecución del workflow de guardrails y respuesta estructurada lista para el frontend.
 
-Mastra también publica rutas built-in como `POST /api/agents/{agentId}/generate`, pero el MVP usa `POST /agent` para mantener un contrato más simple entre el workspace y el backend.
+Mastra también publica rutas built-in como `POST /api/agents/{agentId}/generate`, pero esta aplicación usa `POST /agent` para mantener un contrato más simple entre el workspace y el backend.
 
 ```yaml
 openapi: 3.0.0
@@ -374,25 +442,75 @@ Otros contratos del sistema, fuera de esta API REST:
 
 ## 5. Historias de usuario
 
-> Tres historias principales del MVP. El backlog completo incluye además: biblioteca de proyectos (H2), persistencia entre sesiones (H5), generar sketch desde descripción (H6), snapshots (H7) y la visión de curación/producción (variaciones por lotes, grid de favoritas, export a producción).
+> Historias principales del producto, separando lo implementado en la versión actual de la visión pendiente.
 
-**Historia de Usuario 1 — Registro e inicio de sesión**
+### Historias implementadas
+
+#### Historia de Usuario 1 — Registro e inicio de sesión
+
 **Como** artista, **quiero** crear una cuenta e iniciar sesión, **para** tener mis proyectos asociados a mí y accesibles desde cualquier dispositivo.
-**Criterios de aceptación:** registro con email/contraseña; sesión persistente entre recargas; las acciones con cuenta son inaccesibles sin sesión; los datos quedan aislados por usuario mediante RLS.
 
-**Historia de Usuario 2 — Parámetros con controles visuales**
+**Criterios de aceptación**
+- Registro con email/contraseña.
+- Sesión persistente entre recargas.
+- Las acciones con cuenta son inaccesibles sin sesión.
+- Los datos quedan aislados por usuario mediante RLS.
+
+#### Historia de Usuario 2 — Parámetros con controles visuales
+
 **Como** artista sin experiencia en código, **quiero** mover sliders y selectores, **para** explorar variaciones sin programar.
-**Criterios de aceptación:** los controles se generan automáticamente desde `config.yaml`; mover un control actualiza el sketch en tiempo real; cambiar el canvas reinicia el sketch.
 
-**Historia de Usuario 3 — Edición con el agente de IA**
+**Criterios de aceptación**
+- Los controles se generan automáticamente desde `config.yaml`.
+- Mover un control actualiza el sketch en tiempo real.
+- Cambiar el canvas reinicia el sketch.
+
+#### Historia de Usuario 3 — Edición con el agente de IA
+
 **Como** usuario, **quiero** pedir cambios en lenguaje natural, **para** que el agente edite el sketch por mí.
-**Criterios de aceptación:** la instrucción va al backend autenticado; el agente devuelve configuración o código validados; el cambio se aplica, el sketch se recarga y el proyecto se guarda; el historial se conserva por proyecto; ante fallo, mensaje claro sin pérdida de trabajo. Incluye la memoria de proyecto: el agente lee notas de contexto y puede proponer actualizarlas, sujetas a aprobación.
+
+**Criterios de aceptación**
+- La instrucción va al backend autenticado.
+- El agente devuelve configuración o código validados.
+- El cambio se aplica, el sketch se recarga y el proyecto se guarda.
+- El historial se conserva por proyecto.
+- Ante fallo, el usuario recibe un mensaje claro sin pérdida de trabajo.
+- La memoria de proyecto se lee como contexto y solo se actualiza con aprobación.
+
+#### Historia de Usuario 4 — Snapshots de parámetros
+
+**Como** usuario explorando variaciones, **quiero** guardar combinaciones de valores, **para** recuperarlas más tarde.
+
+**Criterios de aceptación**
+- Un snapshot captura los valores actuales con etiqueta y fecha.
+- Cargar un snapshot restaura los valores y actualiza el sketch.
+- Los snapshots quedan asociados al proyecto y se recuperan al reabrirlo.
+
+### Historias pendientes / visión de curación
+
+#### Historia de Usuario 5 — Variaciones por lotes
+
+**Como** artista explorando, **quiero** generar N variaciones barriendo rangos de parámetros, **para** ver muchas direcciones de golpe sin moverlas a mano una a una.
+
+**Criterios de aceptación**
+- El usuario elige qué parámetros varían y en qué rango.
+- El sistema genera N variaciones.
+- Cada variación guarda sus valores y una previsualización.
+
+#### Historia de Usuario 6 — Comparación y curación
+
+**Como** usuario con muchas variaciones, **quiero** verlas en un grid lado a lado y marcar mis favoritas, **para** quedarme con las mejores piezas.
+
+**Criterios de aceptación**
+- El usuario ve un grid de variaciones del proyecto.
+- Puede marcar y desmarcar favoritas.
+- Las favoritas se conservan y se recuperan al reabrir.
 
 ---
 
 ## 6. Tickets de trabajo
 
-> Cuatro tickets representativos —base de datos, backend, visor frontend y conexión chat-agente—. El backlog completo está organizado en infraestructura, auth/datos, agente, frontend, curación/producción y calidad.
+> Tickets principales del desarrollo actual.
 
 **Ticket 1 (Base de datos) — Esquema Supabase + RLS**
 - **Historias:** H1, biblioteca y persistencia.
@@ -407,7 +525,7 @@ Otros contratos del sistema, fuera de esta API REST:
 - **Criterios de aceptación:** devuelve un objeto válido según el schema; cada tool valida su salida (YAML parseable / JS sin errores evidentes); los guardrails cortan bucles y fallos repetidos; una petición sin token válido devuelve 401; el historial se recupera al reabrir el proyecto.
 
 **Ticket 3 (Frontend) — Visor del sketch**
-- **Historia:** H3 (controles visuales) / render.
+- **Historia:** Historia 2 (controles visuales) / render.
 - **Descripción:** componente que monta el sketch en un `<iframe>` aislado, le inyecta los valores y gestiona la comunicación por `postMessage`.
 - **Tareas:** iframe sandboxed con su HTML de arranque; inyección de `window.__SKETCH__` (config + valores); manejo de `SKETCH_READY`/`SKETCH_ERROR`; ciclo de vida de las blob URLs (crear/revocar); recarga al cambiar el canvas; actualización en tiempo real al mover un control.
 - **Criterios de aceptación:** el sketch monta y renderiza; mover un control actualiza el sketch al instante; un error del sketch se muestra sin romper la app; no se filtran blob URLs entre recargas.
@@ -422,9 +540,9 @@ Otros contratos del sistema, fuera de esta API REST:
 
 ## 7. Pull requests
 
-Pendiente. Se documentarán a medida que se abran (la entrega final pide 3).
+Por documentar con los pull requests reales del repositorio.
 
-- PR #1 — Entrega 1: documentación técnica.
+- PR #1 — Documentación técnica inicial.
 
 ## Lidr Creative Demo 26
 demo creative code ai
