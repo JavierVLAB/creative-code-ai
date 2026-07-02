@@ -41,4 +41,32 @@ modules:
 `
     expect(() => parseSketchConfig(yaml)).toThrow(/canvas/)
   })
+
+  it('normaliza config legacy con parametros anidados', () => {
+    const yaml = `
+name: legacy
+modules:
+  canvas:
+    type: canvas
+    width: 640
+    height: 480
+  parametros:
+    type: params
+    params:
+      seed:
+        type: range
+        label: Semilla
+        min: 0
+        max: 10
+        step: 1
+        default: 5
+`
+    const config = parseSketchConfig(yaml)
+    expect(config.modules.canvas.width).toBe(640)
+    expect(config.modules.seed).toMatchObject({
+      type: 'range',
+      label: 'Semilla',
+      default: 5,
+    })
+  })
 })

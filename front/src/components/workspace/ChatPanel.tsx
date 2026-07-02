@@ -1,19 +1,36 @@
-// Panel de chat: historial de mensajes + input para enviar texto al agente.
-// Si onSend no se pasa, el input queda deshabilitado con tooltip explicativo
-// (estado transitorio mientras el agente no está conectado todavía).
 import { useRef, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import type { ChatMessage } from '../../lib/types'
 import { ChatMessageItem } from './ChatMessage'
 
+interface ChatDisabledState {
+  title: string
+  description: string
+  ctaHref?: string
+  ctaLabel?: string
+}
+
 interface ChatPanelProps {
   messages: ChatMessage[]
-  // undefined = agente no disponible aún; se deshabilita el input
   onSend?: (text: string) => void
   isLoading?: boolean
   pendingQuestion?: string | null
+  title?: string
+  disabledState?: ChatDisabledState
+  disabledPlaceholder?: string
+  disabledButtonLabel?: string
 }
 
-export function ChatPanel({ messages, onSend, isLoading = false, pendingQuestion = null }: ChatPanelProps) {
+export function ChatPanel({
+  messages,
+  onSend,
+  isLoading = false,
+  pendingQuestion = null,
+  title = 'Agente IA',
+  disabledState,
+  disabledPlaceholder = 'Conectando con el agente...',
+  disabledButtonLabel = 'Conectando...',
+}: ChatPanelProps) {
   const [draft, setDraft] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const messagesRef = useRef<HTMLDivElement>(null)
@@ -55,15 +72,42 @@ export function ChatPanel({ messages, onSend, isLoading = false, pendingQuestion
       flexDirection: 'column',
       gap: 'var(--space-3)',
     }}>
-      {/* Título de la sección */}
-      <div style={{
-        fontSize: 'var(--font-size-section-title)',
-        color: 'var(--color-section-title)',
-        letterSpacing: '0.08em',
-        textTransform: 'uppercase',
-      }}>
-        Agente IA
-      </div>
+      {title && (
+        <div style={{
+          fontSize: 'var(--font-size-section-title)',
+          color: 'var(--color-section-title)',
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+        }}>
+          {title}
+        </div>
+      )}
+
+      {!agentReady && disabledState && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'baseline',
+          flexWrap: 'wrap',
+          gap: 'var(--space-2)',
+          fontSize: 'var(--font-size-xs)',
+          color: 'var(--t3)',
+        }}>
+          <strong style={{ fontSize: 'var(--font-size-xs)', color: 'var(--t2)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            {disabledState.title}
+          </strong>
+          <p style={{ lineHeight: 1.4 }}>
+            {disabledState.description}
+          </p>
+          {disabledState.ctaHref && disabledState.ctaLabel && (
+            <Link
+              to={disabledState.ctaHref}
+              style={{ color: 'var(--t2)', textDecoration: 'underline', whiteSpace: 'nowrap' }}
+            >
+              {disabledState.ctaLabel}
+            </Link>
+          )}
+        </div>
+      )}
 
       {/* Historial de mensajes: visible solo si hay mensajes */}
       {messages.length > 0 && (
@@ -100,8 +144,8 @@ export function ChatPanel({ messages, onSend, isLoading = false, pendingQuestion
             handleSend()
           }
         }}
-        placeholder={agentReady ? placeholder : 'Conectando con el agente...'}
-        title={agentReady ? undefined : 'Conectando con el agente...'}
+        placeholder={agentReady ? placeholder : disabledPlaceholder}
+        title={agentReady ? undefined : disabledPlaceholder}
         rows={2}
         style={{
           width: '100%',
@@ -123,7 +167,7 @@ export function ChatPanel({ messages, onSend, isLoading = false, pendingQuestion
       <button
         onClick={handleSend}
         disabled={!canSend}
-        title={agentReady ? undefined : 'Conectando con el agente...'}
+        title={agentReady ? undefined : disabledPlaceholder}
         style={{
           width: '100%',
           padding: 'var(--btn-padding)',
@@ -141,7 +185,7 @@ export function ChatPanel({ messages, onSend, isLoading = false, pendingQuestion
         {isLoading
           ? 'Pensando...'
           : !agentReady
-            ? 'Conectando...'
+            ? disabledButtonLabel
             : 'Enviar'
         }
       </button>

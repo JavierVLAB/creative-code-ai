@@ -6,6 +6,7 @@ import { DevPanel } from '../components/workspace/DevPanel'
 import { EditorPanel } from '../components/workspace/EditorPanel'
 import { Sidebar } from '../components/workspace/Sidebar'
 import { SketchViewer } from '../components/workspace/SketchViewer'
+import { WorkspaceLayout } from '../components/workspace/WorkspaceLayout'
 import { generateControls } from '../lib/controls'
 import { buildMemoryPatch, formatAgentApplySummary, getAgentChangeSet, inferRenderer } from '../lib/agent'
 import { parseSketchConfig, serializeSketchConfig } from '../lib/yaml'
@@ -262,9 +263,8 @@ export function WorkspacePage() {
   }
 
   return (
-    <div style={{ display: 'flex', position: 'relative', height: 'calc(100vh - var(--topbar-height))', overflow: 'hidden' }}>
-      {/* Canvas como fondo, con el explorador flotando en su esquina */}
-      <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
+    <WorkspaceLayout
+      viewer={(
         <SketchViewer
           sketchJs={project.sketch_js}
           configYaml={project.config_yaml}
@@ -276,19 +276,15 @@ export function WorkspacePage() {
           onControlsReady={handleControlsReady}
           canvasSize={canvasSize}
         />
-        {/* El explorador flota sobre el canvas; el wrapper no captura clics
-            (pointerEvents:none) salvo el propio panel, que los reactiva. */}
-        <div style={{ position: 'absolute', top: 'var(--space-3)', right: 'var(--space-3)', bottom: 'var(--space-3)', zIndex: 10, pointerEvents: 'none' }}>
-          <FileExplorerPanel
-            activeFile={activeFile}
-            onSelectFile={handleSelectFile}
-            onNavigateLibrary={() => navigate('/app')}
-          />
-        </div>
-      </div>
-
-      {/* Editor flotante entre el canvas y la sidebar cuando hay un archivo abierto */}
-      {activeFile && (
+      )}
+      fileExplorer={(
+        <FileExplorerPanel
+          activeFile={activeFile}
+          onSelectFile={handleSelectFile}
+          onNavigateLibrary={() => navigate('/app')}
+        />
+      )}
+      editor={activeFile ? (
         <div style={{ padding: 'var(--space-3)', flexShrink: 0, height: '100%' }}>
           <EditorPanel
             fileName={activeFile}
@@ -297,10 +293,8 @@ export function WorkspacePage() {
             onClose={() => setActiveFile(null)}
           />
         </div>
-      )}
-
-      {/* Columna derecha con padding para el efecto flotante de la sidebar */}
-      <div style={{ padding: 'var(--space-3)', flexShrink: 0 }}>
+      ) : undefined}
+      sidebar={(
         <Sidebar
           projectName={project.name}
           controls={controls}
@@ -319,10 +313,8 @@ export function WorkspacePage() {
           onMemoryApprove={handleMemoryApprove}
           onMemoryIgnore={() => setMemorySuggestion(null)}
         />
-      </div>
-
-      {/* Transparencia del orquestador (solo en desarrollo; el trace llega en frontend-agent) */}
-      <DevPanel trace={null} />
-    </div>
+      )}
+      devPanel={<DevPanel trace={null} />}
+    />
   )
 }

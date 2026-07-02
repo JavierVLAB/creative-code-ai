@@ -87,6 +87,21 @@ export interface AgentResponse {
   pendingQuestion?: string
 }
 
+export interface Template {
+  id: string
+  slug: string
+  title: string
+  description: string | null
+  sketchJs: string
+  configYaml: string
+  renderer: SketchRenderer
+  thumbnailUrl: string | null
+  tags: string[]
+  isPublished: boolean
+  createdAt: string
+  updatedAt: string
+}
+
 // Snapshot: combinación guardada de valores de parámetros de un proyecto.
 // Persistido en la tabla `snapshots` de Supabase (columna `values`).
 export interface Snapshot {

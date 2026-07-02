@@ -7,11 +7,13 @@ import { LoginPage } from './pages/LoginPage'
 import { SignupPage } from './pages/SignupPage'
 import { ProjectsPage } from './pages/ProjectsPage'
 import { WorkspacePage } from './pages/WorkspacePage'
+import { PlaygroundPage } from './pages/PlaygroundPage'
 import './index.css'
 
-const router = createBrowserRouter([
+export const appRoutes = [
   { path: '/login',  element: <LoginPage /> },
   { path: '/signup', element: <SignupPage /> },
+  { path: '/playground', element: <PlaygroundPage /> },
   {
     path: '/app',
     element: (
@@ -25,10 +27,17 @@ const router = createBrowserRouter([
     ],
   },
   { path: '/', element: <Navigate to="/app" replace /> },
-])
+]
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <RouterProvider router={router} />
-  </StrictMode>,
-)
+if (typeof document !== 'undefined') {
+  const router = createBrowserRouter(appRoutes)
+  const rootElement = document.getElementById('root')
+
+  if (rootElement) {
+    createRoot(rootElement).render(
+      <StrictMode>
+        <RouterProvider router={router} />
+      </StrictMode>,
+    )
+  }
+}

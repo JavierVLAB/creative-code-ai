@@ -100,6 +100,51 @@ export interface Database {
         }
         Relationships: []
       }
+      templates: {
+        Row: {
+          id: string
+          slug: string
+          title: string
+          description: string | null
+          sketch_js: string
+          config_yaml: string
+          renderer: 'p5js' | 'threejs'
+          thumbnail_url: string | null
+          tags: string[] | null
+          is_published: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          slug: string
+          title: string
+          description?: string | null
+          sketch_js: string
+          config_yaml: string
+          renderer: 'p5js' | 'threejs'
+          thumbnail_url?: string | null
+          tags?: string[] | null
+          is_published?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          slug?: string
+          title?: string
+          description?: string | null
+          sketch_js?: string
+          config_yaml?: string
+          renderer?: 'p5js' | 'threejs'
+          thumbnail_url?: string | null
+          tags?: string[] | null
+          is_published?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       assets: {
         Row: {
           id: string

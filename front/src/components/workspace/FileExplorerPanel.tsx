@@ -52,6 +52,9 @@ interface FileExplorerPanelProps {
   onSelectFile: (file: ProjectFile) => void
   // Vuelve a la biblioteca de proyectos (reemplaza "Abrir carpeta" del prototipo)
   onNavigateLibrary: () => void
+  libraryLabel?: string
+  showAiAction?: boolean
+  showDownloadAction?: boolean
 }
 
 // Estilos del botón circular de toggle — igual que en el prototipo original
@@ -77,6 +80,9 @@ export function FileExplorerPanel({
   activeFile,
   onSelectFile,
   onNavigateLibrary,
+  libraryLabel = 'Biblioteca',
+  showAiAction = true,
+  showDownloadAction = true,
 }: FileExplorerPanelProps) {
   // Estado open/closed es local — el padre solo necesita saber qué archivo está activo
   const [isOpen, setIsOpen] = useState(false)
@@ -149,54 +155,54 @@ export function FileExplorerPanel({
           onMouseEnter={e => { e.currentTarget.style.color = 'var(--t1)' }}
           onMouseLeave={e => { e.currentTarget.style.color = 'var(--t3)' }}
         >
-          ← Biblioteca
+          ← {libraryLabel}
         </button>
 
-        {/* Botón "Nuevo sketch con IA" — sin lógica hasta que llegue el frontend-agent */}
-        {/* TODO: change frontend-agent — conectar con flujo de creación de sketch */}
-        <button
-          disabled
-          title="Nuevo sketch con IA (próximamente)"
-          style={{
-            flexShrink: 0,
-            width: 'var(--space-6)',
-            height: 'var(--space-6)',
-            borderRadius: 'var(--radius-sm)',
-            border: 'var(--border-width) solid transparent',
-            background: 'transparent',
-            color: 'var(--t3)',
-            cursor: 'not-allowed',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0.4,
-          }}
-        >
-          <SparkleIcon />
-        </button>
+        {showAiAction && (
+          <button
+            disabled
+            title="Nuevo sketch con IA (próximamente)"
+            style={{
+              flexShrink: 0,
+              width: 'var(--space-6)',
+              height: 'var(--space-6)',
+              borderRadius: 'var(--radius-sm)',
+              border: 'var(--border-width) solid transparent',
+              background: 'transparent',
+              color: 'var(--t3)',
+              cursor: 'not-allowed',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: 0.4,
+            }}
+          >
+            <SparkleIcon />
+          </button>
+        )}
 
-        {/* Botón "Descargar ZIP" — sin lógica hasta que llegue el frontend-agent */}
-        {/* TODO: change frontend-agent — conectar con endpoint de descarga */}
-        <button
-          disabled
-          title="Descargar proyecto (próximamente)"
-          style={{
-            flexShrink: 0,
-            width: 'var(--space-6)',
-            height: 'var(--space-6)',
-            borderRadius: 'var(--radius-sm)',
-            border: 'var(--border-width) solid transparent',
-            background: 'transparent',
-            color: 'var(--t3)',
-            cursor: 'not-allowed',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0.4,
-          }}
-        >
-          <DownloadIcon />
-        </button>
+        {showDownloadAction && (
+          <button
+            disabled
+            title="Descargar proyecto (próximamente)"
+            style={{
+              flexShrink: 0,
+              width: 'var(--space-6)',
+              height: 'var(--space-6)',
+              borderRadius: 'var(--radius-sm)',
+              border: 'var(--border-width) solid transparent',
+              background: 'transparent',
+              color: 'var(--t3)',
+              cursor: 'not-allowed',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: 0.4,
+            }}
+          >
+            <DownloadIcon />
+          </button>
+        )}
 
         {/* Botón colapso — cierra el panel */}
         <button

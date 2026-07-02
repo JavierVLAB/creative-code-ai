@@ -4,6 +4,7 @@
 // El estado abierto/cerrado es local; el LLM lo gestiona el backend (sin props de aiSettings).
 
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import type { Control, Snapshot, ChatMessage } from '../../lib/types'
 import { ParamsControls } from './ParamsControls'
 import { SnapshotsPanel } from './SnapshotsPanel'
@@ -26,6 +27,12 @@ function HamburgerIcon() {
 
 interface SidebarProps {
   projectName: string
+  statusNotice?: {
+    title: string
+    description: string
+    ctaHref?: string
+    ctaLabel?: string
+  }
   // ParamsControls
   controls: Control[]
   values: Record<string, unknown>
@@ -36,22 +43,31 @@ interface SidebarProps {
   snapshots: Snapshot[]
   onSnapshotSave: (label: string) => void
   onSnapshotLoad: (snapshot: Snapshot) => void
+  showSnapshots?: boolean
   // ChatPanel
   messages: ChatMessage[]
-  // undefined = agente aún no disponible; ChatPanel deshabilita el input
   onChatSend?: (text: string) => void
   chatLoading?: boolean
   pendingQuestion?: string | null
-  // MemoryProposalCard: se renderiza solo si hay sugerencia pendiente
+  chatTitle?: string
+  chatDisabledState?: {
+    title: string
+    description: string
+    ctaHref?: string
+    ctaLabel?: string
+  }
+  chatDisabledPlaceholder?: string
+  chatDisabledButtonLabel?: string
   memorySuggestion?: string | null
-  onMemoryApprove: (text: string) => void
-  onMemoryIgnore: () => void
+  onMemoryApprove?: (text: string) => void
+  onMemoryIgnore?: () => void
 }
 
 // ─── Componente ──────────────────────────────────────────────────────────────
 
 export function Sidebar({
   projectName,
+  statusNotice,
   controls,
   values,
   canvasSize,
@@ -60,10 +76,15 @@ export function Sidebar({
   snapshots,
   onSnapshotSave,
   onSnapshotLoad,
+  showSnapshots = true,
   messages,
   onChatSend,
   chatLoading,
   pendingQuestion,
+  chatTitle,
+  chatDisabledState,
+  chatDisabledPlaceholder,
+  chatDisabledButtonLabel,
   memorySuggestion,
   onMemoryApprove,
   onMemoryIgnore,
@@ -184,6 +205,33 @@ export function Sidebar({
       {/* Contenido scrollable:
           orden visual → ParamsControls → SnapshotsPanel → MemoryProposalCard (condicional) → ChatPanel */}
       <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
+        {statusNotice && (
+          <div style={{ padding: 'var(--padding-module) var(--padding-section) 0' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'baseline',
+              gap: 'var(--space-2)',
+              fontSize: 'var(--font-size-xs)',
+              color: 'var(--t3)',
+            }}>
+              <strong style={{ fontSize: 'var(--font-size-xs)', color: 'var(--t2)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                {statusNotice.title}
+              </strong>
+              <p style={{ lineHeight: 1.4 }}>
+                {statusNotice.description}
+              </p>
+              {statusNotice.ctaHref && statusNotice.ctaLabel && (
+                <Link
+                  to={statusNotice.ctaHref}
+                  style={{ color: 'var(--t2)', textDecoration: 'underline', whiteSpace: 'nowrap' }}
+                >
+                  {statusNotice.ctaLabel}
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
+
         <ParamsControls
           controls={controls}
           values={values}
@@ -192,14 +240,15 @@ export function Sidebar({
           onCanvasApply={onCanvasApply}
         />
 
-        <SnapshotsPanel
-          snapshots={snapshots}
-          onSave={onSnapshotSave}
-          onLoad={onSnapshotLoad}
-        />
+        {showSnapshots && (
+          <SnapshotsPanel
+            snapshots={snapshots}
+            onSave={onSnapshotSave}
+            onLoad={onSnapshotLoad}
+          />
+        )}
 
-        {/* MemoryProposalCard: aparece encima del chat solo si hay sugerencia pendiente */}
-        {memorySuggestion != null && (
+        {memorySuggestion != null && onMemoryApprove && onMemoryIgnore && (
           <MemoryProposalCard
             suggestion={memorySuggestion}
             onApprove={onMemoryApprove}
@@ -208,10 +257,14 @@ export function Sidebar({
         )}
 
         <ChatPanel
+          title={chatTitle}
           messages={messages}
           onSend={onChatSend}
           isLoading={chatLoading}
           pendingQuestion={pendingQuestion}
+          disabledState={chatDisabledState}
+          disabledPlaceholder={chatDisabledPlaceholder ?? (chatDisabledState ? 'Disponible al iniciar sesión...' : undefined)}
+          disabledButtonLabel={chatDisabledButtonLabel ?? (chatDisabledState ? 'IA no disponible' : undefined)}
         />
       </div>
     </aside>

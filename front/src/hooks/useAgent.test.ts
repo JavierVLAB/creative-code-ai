@@ -26,13 +26,16 @@ describe('sendAgentMessage', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     const result = await sendAgentMessage(REQUEST, SESSION)
-    const [url, init] = fetchMock.mock.calls[0]
-    const requestInit = init as RequestInit
+    const calls = fetchMock.mock.calls as unknown as Array<[RequestInfo | URL, RequestInit | undefined]>
+    const firstCall = calls[0]
+    expect(firstCall).toBeTruthy()
+    const url = firstCall?.[0]
+    const requestInit = firstCall?.[1]
 
     expect(String(url)).toMatch(/\/agent$/)
-    expect(requestInit.method).toBe('POST')
-    expect(requestInit.headers).toMatchObject({ Authorization: 'Bearer token-test' })
-    expect(JSON.parse(String(requestInit.body))).toMatchObject(REQUEST)
+    expect(requestInit?.method).toBe('POST')
+    expect(requestInit?.headers).toMatchObject({ Authorization: 'Bearer token-test' })
+    expect(JSON.parse(String(requestInit?.body))).toMatchObject(REQUEST)
     expect(result.response).toBe('Listo')
   })
 

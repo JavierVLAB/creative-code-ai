@@ -506,6 +506,19 @@ Otros contratos del sistema, fuera de esta API REST:
 - Puede marcar y desmarcar favoritas.
 - Las favoritas se conservan y se recuperan al reabrir.
 
+#### Historia de Usuario 7 — Playground público de plantillas
+
+**Como** visitante sin cuenta, **quiero** abrir un playground público con ejemplos de sketches, **para** probar la experiencia de exploración antes de registrarme.
+
+**Criterios de aceptación**
+- El visitante accede a una ruta pública de playground sin iniciar sesión.
+- El playground muestra una biblioteca de plantillas o ejemplos publicados.
+- Al abrir una plantilla, el sketch se carga en un workspace efímero con sus controles visuales.
+- Mover controles actualiza el sketch en tiempo real.
+- Los cambios del visitante no se guardan en Supabase ni modifican la plantilla original.
+- La IA aparece deshabilitada en el playground público, con una indicación clara de que estará disponible en demos invitadas.
+- El playground ofrece una llamada a crear cuenta o iniciar sesión para guardar un proyecto propio desde una plantilla.
+
 ---
 
 ## 6. Tickets de trabajo
@@ -535,6 +548,12 @@ Otros contratos del sistema, fuera de esta API REST:
 - **Descripción:** conectar el panel de chat del workspace con `POST /agent` para enviar instrucciones en lenguaje natural, aplicar la respuesta estructurada del agente al sketch y persistir los cambios del proyecto.
 - **Tareas:** crear `useAgent`; enviar `{ projectId, message, sketchJs, configYaml, renderer, previousResponse? }` con Bearer token; mantener historial local de la sesión; mostrar loading, errores y `pendingQuestion`; persistir `appliedSketchJs` en `projects.sketch_js` y `appliedConfigYaml` en `projects.config_yaml`; regenerar controles o recargar iframe según qué cambió; guardar `memorySuggestion` aprobado en `projects.memory`; actualizar `projects.updated_at`.
 - **Criterios de aceptación:** el usuario puede pedir un cambio desde el chat y verlo reflejado en el sketch; una respuesta conversacional no recarga el iframe; una configuración inválida no se persiste; las sugerencias de memoria solo se guardan con aprobación explícita; errores de red/auth se muestran sin romper el workspace.
+
+**Ticket 5 (Frontend + Datos) — Playground público de plantillas sin IA**
+- **Historia:** H7 (playground público de plantillas).
+- **Descripción:** crear una experiencia pública para explorar sketches de ejemplo sin cuenta, usando plantillas publicadas como punto de partida y manteniendo todos los cambios en estado efímero.
+- **Tareas:** definir el modelo mínimo de plantilla publicada (`title`, `description`, `sketch_js`, `config_yaml`, `renderer`, `thumbnail_url`, `tags`, `is_published`); añadir la ruta pública `/playground`; listar plantillas publicadas; reutilizar el visor y los controles del workspace en modo no persistente; bloquear o deshabilitar el chat de IA en esta ruta; evitar escrituras en `projects`, `snapshots`, `memory` y `updated_at`; añadir CTA para crear cuenta e iniciar un proyecto real desde una plantilla.
+- **Criterios de aceptación:** cualquier visitante puede abrir el playground y probar una plantilla; los controles modifican el sketch solo en la sesión actual; recargar la página restaura el estado original de la plantilla; no se realizan escrituras de usuario en Supabase; la IA queda claramente deshabilitada; el diseño deja preparado el camino para una demo futura con IA habilitada por token.
 
 ---
 
