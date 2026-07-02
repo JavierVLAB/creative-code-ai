@@ -1,5 +1,8 @@
+// Configura la instancia principal de Mastra y separa la observabilidad local
+// del storage operativo para poder revisar trazas en Studio sin tocar el contrato del backend.
 import { Mastra } from '@mastra/core'
-import { PostgresStore } from '@mastra/pg'
+import { Observability } from '@mastra/observability'
+import { PostgresStoreVNext } from '@mastra/pg'
 import { z } from 'zod'
 import { createSketchAgent } from './agents/sketch-agent.js'
 import { createAgentGuardrailsWorkflow, agentOutputSchema } from './workflows/agent-guardrails.js'
@@ -14,6 +17,10 @@ const requestBodySchema = z.object({
   previousResponse: z.string().optional(),
 })
 
+const primaryDatabaseUrl = process.env.DATABASE_URL!
+const observabilityDatabaseUrl = process.env.OBSERVABILITY_DATABASE_URL ?? primaryDatabaseUrl
+const observabilitySchema = process.env.OBSERVABILITY_SCHEMA ?? 'mastra_observability'
+
 export const mastra = new Mastra({
   agents: {
     'sketch-agent': createSketchAgent(),
@@ -21,9 +28,18 @@ export const mastra = new Mastra({
   workflows: {
     'agent-guardrails': createAgentGuardrailsWorkflow(),
   },
-  storage: new PostgresStore({
+  observability: new Observability({
+    default: {
+      enabled: true,
+    },
+  }),
+  storage: new PostgresStoreVNext({
     id: 'mastra-storage',
-    connectionString: process.env.DATABASE_URL!,
+    connectionString: primaryDatabaseUrl,
+    observability: {
+      connectionString: observabilityDatabaseUrl,
+      schemaName: observabilitySchema,
+    },
   }),
   server: {
     // Sin auth a nivel de servidor: el Studio queda abierto en local (correcto para dev).
