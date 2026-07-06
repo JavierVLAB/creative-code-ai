@@ -21,6 +21,13 @@ const primaryDatabaseUrl = process.env.DATABASE_URL!
 const observabilityDatabaseUrl = process.env.OBSERVABILITY_DATABASE_URL ?? primaryDatabaseUrl
 const observabilitySchema = process.env.OBSERVABILITY_SCHEMA ?? 'mastra_observability'
 
+// Orígenes permitidos para CORS. En producción se restringe al dominio del frontend
+// (FRONTEND_ORIGIN, definido en Mastra Cloud) más Vite en local. En dev, sin esa variable,
+// se deja el default permisivo para no romper el playground/Studio.
+const corsOrigin = process.env.FRONTEND_ORIGIN
+  ? [process.env.FRONTEND_ORIGIN, 'http://localhost:5173']
+  : '*'
+
 export const mastra = new Mastra({
   agents: {
     'sketch-agent': createSketchAgent(),
@@ -44,6 +51,9 @@ export const mastra = new Mastra({
   server: {
     // Sin auth a nivel de servidor: el Studio queda abierto en local (correcto para dev).
     // La verificación del JWT de Supabase se hace manualmente en el handler de /agent.
+    cors: {
+      origin: corsOrigin,
+    },
     apiRoutes: [
       {
         path: '/agent',
