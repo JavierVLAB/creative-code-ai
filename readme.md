@@ -29,7 +29,10 @@ Plataforma web que separa la capa de exploración de la capa de código: artista
 
 ### 0.4. URL del proyecto
 
-Pendiente de despliegue público.
+- **App:** https://creative-code-ai.vercel.app
+- **Demo público (sin login):** https://creative-code-ai.vercel.app/playground
+- **Backend (Mastra Server):** https://curateartai-backend.server.mastra.cloud
+- **Mastra Studio:** https://curateartai-backend.studio.mastra.cloud
 
 ### 0.5. URL del repositorio
 
@@ -235,13 +238,38 @@ A alto nivel, el proyecto se organiza en dos servicios desplegables por separado
 
 ### 2.4. Infraestructura y despliegue
 
-| Pieza | Plataforma |
-|---|---|
-| Frontend | Vercel o Cloudflare Pages (build estático de Vite) |
-| Backend (Mastra) | Render |
-| Datos / Auth / Storage | Supabase (Postgres gestionado) |
+| Pieza | Plataforma | Project root |
+|---|---|---|
+| Frontend | Vercel (build estático de Vite, preset Vite) | `front/` |
+| Backend (Mastra) | Mastra Cloud (Server + Studio) | `backend/` |
+| Datos / Auth / Storage | Supabase (Postgres gestionado) | — |
 
-Cada servicio se despliega en su propia nube; no se usan contenedores propios. Los secretos (claves de LLM, `service_role` y `DATABASE_URL`) viven solo en el backend; el cliente usa la clave publicable de Supabase. El proceso concreto de despliegue, las URLs públicas y las variables finales quedan pendientes.
+Cada servicio se despliega en su propia nube; no se usan contenedores propios. Los secretos (clave de LLM, `SUPABASE_SECRET_KEY` y `DATABASE_URL`) viven solo en el backend; el cliente usa la clave publicable de Supabase.
+
+**Variables por servicio**
+
+| Servicio | Variables |
+|---|---|
+| Vercel (front) | `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_BACKEND_URL` |
+| Mastra Cloud (backend) | `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `DATABASE_URL`, `OBSERVABILITY_DATABASE_URL`, `OBSERVABILITY_SCHEMA`, `ANTHROPIC_API_KEY`, `FRONTEND_ORIGIN` |
+
+`DATABASE_URL` debe usar el connection string del **pooler** de Supabase (`*.pooler.supabase.com`), no el directo (solo IPv6).
+
+**Despliegue del backend** (CLI de Mastra, desde `backend/`):
+
+```bash
+npx mastra auth login
+npx mastra server deploy --project curateartai-backend --env-file .env
+npx mastra studio deploy  --project curateartai-backend --env-file .env   # opcional: Studio
+```
+
+**Despliegue del frontend**: importar el repo en Vercel con project root `front/`, preset Vite y las tres variables `VITE_*` (con `VITE_BACKEND_URL` apuntando al Server de Mastra). El `front/vercel.json` añade el rewrite SPA para React Router.
+
+**Orden de despliegue** (resuelve la dependencia mutua de URLs):
+1. Desplegar backend → obtener su URL estable.
+2. Desplegar frontend con `VITE_BACKEND_URL` = URL del backend → obtener el dominio de Vercel.
+3. Fijar `FRONTEND_ORIGIN` en el backend con el dominio de Vercel y redesplegar (restringe CORS).
+4. Registrar el dominio de Vercel en Supabase Auth (Site URL / Redirect URLs).
 
 ### 2.5. Seguridad
 

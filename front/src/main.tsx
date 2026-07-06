@@ -1,7 +1,8 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
+import { RootRedirect } from './components/auth/RootRedirect'
 import { AppShell } from './components/layout/AppShell'
 import { LoginPage } from './pages/LoginPage'
 import { SignupPage } from './pages/SignupPage'
@@ -26,7 +27,7 @@ export const appRoutes = [
       { path: 'projects/:id', element: <WorkspacePage /> },
     ],
   },
-  { path: '/', element: <Navigate to="/app" replace /> },
+  { path: '/', element: <RootRedirect /> },
 ]
 
 if (typeof document !== 'undefined') {

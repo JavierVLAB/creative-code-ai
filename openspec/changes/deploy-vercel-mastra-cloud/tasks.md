@@ -13,33 +13,33 @@
 
 ## 3. Promoción de código a la rama de deploy
 
-- [ ] 3.1 Fusionar `development` → `main` (con los cambios de CORS y config de deploy)
-- [ ] 3.2 Verificar que `main` contiene el backend completo, el frontend y las migraciones
+- [x] 3.1 Promover a `main` los cambios de CORS y config de deploy (commit `98583a6f "preparando el despliegue"`)
+- [x] 3.2 Verificar que `main` contiene el backend completo, el frontend y las migraciones
 
 ## 4. Despliegue del backend en Mastra Cloud
 
-- [ ] 4.1 Crear proyecto en Mastra Cloud y conectar el repo de GitHub (integración push-to-deploy)
-- [ ] 4.2 Configurar project root = `backend/` y rama de deploy = `main`
-- [ ] 4.3 Configurar variables de entorno: `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `DATABASE_URL`, `OBSERVABILITY_DATABASE_URL`, `OBSERVABILITY_SCHEMA`, `ANTHROPIC_API_KEY`
-- [ ] 4.4 Lanzar el primer deploy y obtener la URL estable del backend
-- [ ] 4.5 Verificar el endpoint: `POST {backend}/agent` sin token → 401; con token válido → respuesta del agente
+- [x] 4.1 Crear proyecto en Mastra Cloud vía CLI (`mastra server deploy --project curateartai-backend` crea el proyecto). Nota: se usó el CLI en lugar del dashboard/GitHub por ser más determinista
+- [x] 4.2 Deploy desde `backend/` con `--env-file .env`
+- [x] 4.3 Variables subidas vía `.env` (4 presentes; `OBSERVABILITY_DATABASE_URL`, `OBSERVABILITY_SCHEMA` y `FRONTEND_ORIGIN` usan fallback en código)
+- [x] 4.4 Deploy OK. Server: `https://curateartai-backend.server.mastra.cloud` · Studio: `https://curateartai-backend.studio.mastra.cloud`
+- [x] 4.5 Verificado: `POST /agent` sin token → HTTP 401
 
 ## 5. Despliegue del frontend en Vercel
 
-- [ ] 5.1 Importar el repo en Vercel con project root = `front/`, framework preset Vite, rama `main`
-- [ ] 5.2 Configurar variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_BACKEND_URL` = URL del backend (paso 4.4)
-- [ ] 5.3 Lanzar el deploy y obtener el dominio de Vercel
-- [ ] 5.4 Verificar que la SPA carga y que las rutas profundas funcionan en refresh (rewrites)
+- [x] 5.1 Importar el repo en Vercel con project root = `front/`, framework preset Vite, rama `main`
+- [x] 5.2 Configurar variables `VITE_*` (backend URL horneada verificada en el bundle)
+- [x] 5.3 Deploy OK. Dominio: `https://creative-code-ai.vercel.app`
+- [x] 5.4 Verificado: rutas profundas sirven `index.html` (`/app/projects/abc` → HTTP 200, rewrite SPA OK)
 
 ## 6. Integración en producción
 
 - [ ] 6.1 Actualizar `FRONTEND_ORIGIN` en Mastra Cloud con el dominio de Vercel y redesplegar el backend
-- [ ] 6.2 Registrar el dominio de Vercel en Supabase Auth (Site URL y Redirect URLs)
-- [ ] 6.3 Verificar CORS: llamada real desde el frontend desplegado al `/agent` sin error de origen
-- [ ] 6.4 Verificar flujo E2E en producción: registro/login → abrir proyecto → instrucción al agente → cambio aplicado al sketch → historial persiste
+- [x] 6.2 Registrado el dominio de Vercel en Supabase Auth (Site URL + Redirect URLs)
+- [x] 6.3 Verificado: llamada real del frontend a `/agent` sin error de origen (CORS actualmente `'*'`)
+- [x] 6.4 E2E verificado en producción: login → abrir proyecto → instrucción al agente → sketch actualizado (nota: proyectos con `config.yaml` vacío dan error de validación `modules` — arista menor)
 
 ## 7. Documentación y cierre
 
-- [ ] 7.1 Añadir sección "Despliegue" al `readme.md`: servicios, project roots, variables por servicio y orden de operaciones
-- [ ] 7.2 Confirmar que ningún secreto está commiteado (`.env` en `.gitignore`, solo `.env.example` en el repo)
-- [ ] 7.3 Archivar el change `refactor-backend-mastra-supabase` con `/opsx:archive`
+- [x] 7.1 Actualizada §2.4 del `readme.md` (Vercel + Mastra Cloud, variables por servicio, comandos CLI y orden) y §0.4 con las URLs reales
+- [x] 7.2 Confirmado: ningún `.env` trackeado; `.gitignore` cubre `.env`/`.env.*` y preserva `.env.example`
+- [ ] 7.3 Archivar el change `refactor-backend-mastra-supabase` (implementado en `development`)
