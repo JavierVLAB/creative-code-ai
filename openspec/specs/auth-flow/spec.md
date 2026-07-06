@@ -35,6 +35,21 @@ La app SHALL permitir acceder a `/playground` sin sesion de Supabase. Las rutas 
 - **WHEN** un visitante sin sesion navega a `/playground`
 - **THEN** la app renderiza el playground sin redirigir a `/login`
 
+### Requirement: La raiz redirige segun sesion
+La raiz `/` SHALL dirigir a los usuarios con sesion activa a `/app` y a los visitantes sin sesion al demo publico `/playground`.
+
+#### Scenario: Visitante sin sesion abre la raiz
+- **WHEN** un visitante sin sesion abre `/`
+- **THEN** la app lo redirige a `/playground`
+
+#### Scenario: Usuario con sesion abre la raiz
+- **WHEN** un usuario con sesion activa abre `/`
+- **THEN** la app lo redirige a `/app`
+
+#### Scenario: Sesion resolviendose
+- **WHEN** la raiz `/` se carga mientras la sesion aun se resuelve
+- **THEN** la app muestra la pantalla de carga hasta conocer el estado
+
 ### Requirement: El registro crea automaticamente un perfil
 El sistema SHALL crear una fila en `profiles` cuando un usuario nuevo se registra en `auth.users`.
 

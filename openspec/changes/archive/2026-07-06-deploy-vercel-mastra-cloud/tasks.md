@@ -33,7 +33,7 @@
 
 ## 6. Integración en producción
 
-- [ ] 6.1 Actualizar `FRONTEND_ORIGIN` en Mastra Cloud con el dominio de Vercel y redesplegar el backend
+- [x] 6.1 `FRONTEND_ORIGIN=https://creative-code-ai.vercel.app` añadido a `backend/.env` y backend redesplegado (CORS restringido a dominio + localhost)
 - [x] 6.2 Registrado el dominio de Vercel en Supabase Auth (Site URL + Redirect URLs)
 - [x] 6.3 Verificado: llamada real del frontend a `/agent` sin error de origen (CORS actualmente `'*'`)
 - [x] 6.4 E2E verificado en producción: login → abrir proyecto → instrucción al agente → sketch actualizado (nota: proyectos con `config.yaml` vacío dan error de validación `modules` — arista menor)
@@ -42,4 +42,4 @@
 
 - [x] 7.1 Actualizada §2.4 del `readme.md` (Vercel + Mastra Cloud, variables por servicio, comandos CLI y orden) y §0.4 con las URLs reales
 - [x] 7.2 Confirmado: ningún `.env` trackeado; `.gitignore` cubre `.env`/`.env.*` y preserva `.env.example`
-- [ ] 7.3 Archivar el change `refactor-backend-mastra-supabase` (implementado en `development`)
+- [x] 7.3 Archivar el change `refactor-backend-mastra-supabase` (paraguas inicial ya implementado vía changes granulares; se mueve a archive sin re-consolidar specs)
