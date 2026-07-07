@@ -1,16 +1,16 @@
 # Local Agent Observability And Evals
 
-## Dependencias que faltan
+## Dependencias
 
-- Instala `@mastra/observability` en `backend/`.
+- `@mastra/observability` y `@mastra/libsql` deben estar instalados en `backend/`.
 - No hace falta un paquete extra para evals: `@mastra/core/evals` ya viene dentro de `@mastra/core`.
 
 ## Configuración local
 
 1. Activa Node 24 en esta carpeta: `nvm use 24`
 2. Instala dependencias en `backend/` para actualizar `node_modules` y lockfile.
-3. Define `OBSERVABILITY_DATABASE_URL` si quieres una base separada para trazas.
-4. Si no defines `OBSERVABILITY_DATABASE_URL`, el backend reutiliza `DATABASE_URL` pero escribe la observabilidad en el esquema `OBSERVABILITY_SCHEMA` para mantenerla aislada a nivel lógico.
+3. Define `ENABLE_OBSERVABILITY=true` en `backend/.env` para activar las trazas del agente en Studio.
+4. El storage es SQLite local (`file:./mastra.db`), no requiere Postgres. En Mastra Cloud la observabilidad se deja desactivada (no se define `ENABLE_OBSERVABILITY`) para que el servicio pueda hibernar.
 
 ## Flujo profesional
 

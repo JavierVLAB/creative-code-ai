@@ -1,8 +1,9 @@
-// Configura la instancia principal de Mastra y separa la observabilidad local
-// del storage operativo para poder revisar trazas en Studio sin tocar el contrato del backend.
+// Configura la instancia principal de Mastra. La observabilidad se activa solo en
+// desarrollo local y el storage usa SQLite local: así en Mastra Cloud no se mantienen
+// conexiones persistentes a Postgres externo que impedían al servicio hibernar en idle.
 import { Mastra } from '@mastra/core'
 import { Observability } from '@mastra/observability'
-import { PostgresStoreVNext } from '@mastra/pg'
+import { LibSQLStore } from '@mastra/libsql'
 import { z } from 'zod'
 import { createSketchAgent } from './agents/sketch-agent.js'
 import { createAgentGuardrailsWorkflow, agentOutputSchema } from './workflows/agent-guardrails.js'
@@ -17,9 +18,10 @@ const requestBodySchema = z.object({
   previousResponse: z.string().optional(),
 })
 
-const primaryDatabaseUrl = process.env.DATABASE_URL!
-const observabilityDatabaseUrl = process.env.OBSERVABILITY_DATABASE_URL ?? primaryDatabaseUrl
-const observabilitySchema = process.env.OBSERVABILITY_SCHEMA ?? 'mastra_observability'
+// La observabilidad solo se activa en desarrollo local (ENABLE_OBSERVABILITY=true).
+// En Mastra Cloud no se define esta variable, así no se escriben trazas ni se mantienen
+// procesos de fondo que impidan la hibernación del servicio. Ver spec agent-local-observability.
+const enableObservability = process.env.ENABLE_OBSERVABILITY === 'true'
 
 // Orígenes permitidos para CORS. En producción se restringe al dominio del frontend
 // (FRONTEND_ORIGIN, definido en Mastra Cloud) más Vite en local. En dev, sin esa variable,
@@ -35,18 +37,16 @@ export const mastra = new Mastra({
   workflows: {
     'agent-guardrails': createAgentGuardrailsWorkflow(),
   },
-  observability: new Observability({
-    default: {
-      enabled: true,
-    },
-  }),
-  storage: new PostgresStoreVNext({
-    id: 'mastra-storage',
-    connectionString: primaryDatabaseUrl,
-    observability: {
-      connectionString: observabilityDatabaseUrl,
-      schemaName: observabilitySchema,
-    },
+  // Observabilidad solo en local; en cloud se omite para permitir la hibernación en idle.
+  ...(enableObservability
+    ? { observability: new Observability({ default: { enabled: true } }) }
+    : {}),
+  // Storage local (SQLite). En Mastra Cloud la plataforma gestiona su propio storage;
+  // aquí se evita la conexión persistente a Postgres externo (Supabase) que impedía hibernar.
+  // La memoria conversacional del agente pasa a ser efímera/gestionada por la plataforma en cloud.
+  storage: new LibSQLStore({
+    id: 'curateartai-local',
+    url: 'file:./mastra.db',
   }),
   server: {
     // Sin auth a nivel de servidor: el Studio queda abierto en local (correcto para dev).

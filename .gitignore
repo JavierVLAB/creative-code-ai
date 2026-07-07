@@ -26,6 +26,10 @@ pnpm-debug.log*
 # Mastra
 .mastra/
 .mastra-cache/
+# Storage SQLite local del agente (no se persiste en el repo; en cloud lo gestiona la plataforma)
+mastra.db
+mastra.db-shm
+mastra.db-wal
 
 # Supabase local development
 .supabase/

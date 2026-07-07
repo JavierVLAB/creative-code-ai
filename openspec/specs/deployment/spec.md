@@ -28,6 +28,17 @@ El backend Mastra SHALL desplegarse en Mastra Cloud con project root `backend/`,
 - **WHEN** se llama a `POST /agent` con un Bearer token valido de Supabase y un body valido
 - **THEN** el workflow `agent-guardrails` se ejecuta y devuelve la respuesta estructurada del agente
 
+### Requirement: El backend hiberna en idle en Mastra Cloud
+Para no acumular CPU cuando no se usa, el backend en Mastra Cloud SHALL evitar procesos de fondo y conexiones de red persistentes: la observabilidad NO se activa en el runtime de produccion y el storage del agente usa SQLite local (`LibSQLStore`, no un Postgres externo). Server y Studio MUST desplegarse ambos con esta configuracion.
+
+#### Scenario: Servicios hibernan sin trafico
+- **WHEN** ni el Server ni Studio reciben peticiones durante un periodo de inactividad
+- **THEN** ambos servicios pasan a idle y el consumo de CPU deja de crecer
+
+#### Scenario: Redespliegue de ambos servicios
+- **WHEN** se cambia la configuracion de observabilidad o storage del backend
+- **THEN** se redespliegan tanto el Server (`mastra server deploy`) como Studio (`mastra studio deploy`); redesplegar solo uno deja el otro con la config antigua
+
 ### Requirement: Variables de entorno por servicio
 Cada servicio SHALL configurar sus variables de entorno en su plataforma, sin commitear secretos en el repo.
 
@@ -37,7 +48,8 @@ Cada servicio SHALL configurar sus variables de entorno en su plataforma, sin co
 
 #### Scenario: Variables del backend
 - **WHEN** se configura Mastra Cloud
-- **THEN** existen `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `DATABASE_URL` (pooler de Supabase), `ANTHROPIC_API_KEY` y, para restringir CORS, `FRONTEND_ORIGIN`
+- **THEN** existen `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `ANTHROPIC_API_KEY` y, para restringir CORS, `FRONTEND_ORIGIN`
+- **THEN** NO se define `ENABLE_OBSERVABILITY` (la observabilidad queda desactivada en producción) ni variables de Postgres para el storage del agente
 
 #### Scenario: Sin secretos en el repositorio
 - **WHEN** se inspecciona el repo
