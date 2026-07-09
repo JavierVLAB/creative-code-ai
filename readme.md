@@ -31,12 +31,10 @@ Plataforma web que separa la capa de exploración de la capa de código: artista
 
 - **App:** https://creative-code-ai.vercel.app
 - **Demo público (sin login):** https://creative-code-ai.vercel.app/playground
-- **Backend (Mastra Server):** https://curateartai-backend.server.mastra.cloud
-- **Mastra Studio:** https://curateartai-backend.studio.mastra.cloud
 
 ### 0.5. URL del repositorio
 
-Pendiente de publicar o enlazar.
+https://github.com/JavierVLAB/AI4Devs-finalproject
 
 ---
 
