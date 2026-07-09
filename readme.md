@@ -587,9 +587,32 @@ Otros contratos del sistema, fuera de esta API REST:
 
 ## 7. Pull requests
 
-Por documentar con los pull requests reales del repositorio.
+En esta fase del proyecto no se ha seguido todavía un flujo formal de pull requests por ticket. Los cambios se han integrado directamente en `main`, así que la trazabilidad real de esta entrega queda mejor reflejada por commits.
 
-- PR #1 — Documentación técnica inicial.
+- **Ticket 1 (Base de datos)**
+  - `8fd850c4` — `feat: prepare changes for front and backend refactorin`
+    - Añade la migración inicial `20260623000000_initial_schema.sql` y las specs base del refactor.
+  - `91068683` — `feat: workspace UI flotante con design system tokenizado`
+    - Añade `20260627000000_add_snapshot_values.sql` para snapshots.
+  - `62bc4dfa` — `feat: playground public`
+    - Añade `20260702120000_add_public_templates.sql` para plantillas públicas.
 
-## Lidr Creative Demo 26
-demo creative code ai
+- **Ticket 2 (Backend)**
+  - `775c779c` — `feat: design system and agent api`
+    - Implementa el backend inicial del agente en Mastra: `POST /agent`, tools, workflow de guardrails y tests.
+
+- **Ticket 3 (Frontend)**
+  - `f45474ef` — `feat: Frontend base`
+    - Construye la base del visor del sketch, controles, autenticación y páginas principales.
+  - `91068683` — `feat: workspace UI flotante con design system tokenizado`
+    - Completa la UI del workspace, snapshots y componentes principales del editor.
+
+- **Ticket 4 (Frontend + Agente)**
+  - `daed879d` — `feat: frontend-agent`
+    - Conecta el workspace con el backend del agente, añade `useAgent`, validación de respuestas y persistencia.
+  - `17159d6c` — `feat: frontend-agent 2`
+    - Ajusta y consolida las specs del chat y del workspace tras la integración.
+
+- **Ticket 5 (Frontend + Datos)**
+  - `62bc4dfa` — `feat: playground public`
+    - Implementa `/playground`, biblioteca de plantillas, modo efímero y desactivación de IA en la demo pública.
