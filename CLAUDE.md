@@ -1,124 +1,76 @@
 # CurateArtAI — CLAUDE.md
 
-## Proyecto
+## Propósito
 
-Plataforma web que separa exploración y código para arte generativo (p5.js / three.js).
-Artistas exploran, editan y curan sketches en lenguaje natural asistidos por un agente de IA.
+Este archivo es el overlay operativo para Claude/OpenCode en este repo.
+El contrato general del proyecto vive en [`AGENTS.md`](./AGENTS.md). La navegación corta y los especialistas viven en [`.agents/README.md`](./.agents/README.md).
 
-## Stack
+## Arranque mínimo
 
-| Capa | Tecnología |
-|------|-----------|
-| Frontend | Vite + React 19 + TypeScript, Tailwind CSS 4, CodeMirror 6 |
-| Backend | Mastra (Node + Hono): Agents, Tools, Workflows, Memory |
-| Datos | Supabase (Postgres, Auth, Storage, RLS) |
-| Sketch | p5.js / three.js en `<iframe>` aislado |
+Antes de trabajar:
 
-## Workflow OpenSpec
+1. Lee `AGENTS.md`.
+2. Lee `.agents/README.md`.
+3. Comprueba si hay un change activo en OpenSpec.
+4. Si la tarea pertenece a un dominio claro, usa el especialista correspondiente antes de improvisar instrucciones.
 
-Este proyecto usa OpenSpec obligatoriamente. Skills instaladas en `.opencode/skills/` y `openspec/`.
+## Cómo trabajar aquí
 
-**Regla de oro: sin propose aprobado no se toca código.**
+- Usa OpenSpec como fuente de verdad para cambios de producto o arquitectura.
+- Mantén los cambios pequeños, explícitos y comprobables.
+- Si una tarea es exploratoria, quédate en modo exploración hasta que haya una propuesta clara.
+- Si una tarea es de implementación, sigue el change activo y marca tareas conforme las cierres.
 
-Flujo obligatorio antes de cualquier cambio importante:
+## Delegación a subagentes
 
-1. **Leer specs** de `openspec/` al empezar cualquier tarea
-2. **Propose** — usar el skill `openspec-propose` o `/opsx:new` para crear un change con artefactos
-3. **Esperar aprobación explícita** antes de implementar
-4. **Apply** — implementar usando el skill `openspec-apply-change`
-5. **Archive** — al terminar, condensar memoria con `openspec-archive-change`
+Claude/OpenCode debe preferir especialistas por dominio:
 
-"Me gusta la opción X" o "quiero Y" no es autorización para implementar.
+- frontend specialist,
+- backend/Mastra specialist,
+- database/Supabase specialist,
+- deployment/runtime specialist,
+- product-design specialist,
+- integration specialist,
+- spec guardian,
+- test strategist,
+- sketch creative-coding specialist.
 
----
+Antes de delegar:
 
-## Pautas de comportamiento
+1. Elige el especialista en `.agents/playbooks/`.
+2. Pasa contexto mínimo suficiente.
+3. Define salida esperada y verificación.
+4. Evita que un mismo especialista mezcle frontend y backend si el trabajo puede separarse.
 
-### 1. Piensa antes de codificar
+## Skills prioritarios
 
-- Declara suposiciones explícitamente. Si no estás seguro, pregunta.
-- Si existen múltiples interpretaciones, preséntalas, no elijas en silencio.
-- Si existe un enfoque más simple, dilo. Cuestiona cuando esté justificado.
-- Si algo no está claro, para. Nombra lo que confunde. Pregunta.
+Consulta [`.agents/skills.md`](./.agents/skills.md).
 
-### 2. Simplicidad primero
+Regla práctica:
 
-- El código mínimo que resuelve el problema. Nada especulativo.
-- No incluyas funcionalidades más allá de lo solicitado.
-- No crees abstracciones para código de uso único.
-- No añadas "flexibilidad" o "configurabilidad" que no se haya solicitado.
-- Si escribes 200 líneas y podrían ser 50, reescríbelo.
-- Pregúntate: "¿un ingeniero senior diría que esto está sobrecomplicado?"
+- `openspec-explore` para pensar y mapear.
+- `openspec-propose` para formalizar trabajo nuevo.
+- `openspec-apply-change` para implementar un change aprobado.
+- `openspec-archive-change` para cerrar trabajo completado.
+- `mastra` para agents, workflows, evals y runtime.
+- `supabase` para auth, RLS, storage y esquema.
+- `creative-coding-sketch` como necesidad específica del proyecto, aunque todavía no exista como skill instalada.
 
-### 3. Cambios quirúrgicos
+## Hooks
 
-- Toca solo lo que debas. Limpia solo tu propio desorden.
-- Al editar: no "mejores" código adyacente, comentarios o formato.
-- No refactorices cosas que no están rotas.
-- Adapta el estilo existente, incluso si lo harías de otra manera.
-- Elimina imports/variables/funciones que TUS cambios hayan dejado sin usar.
+Consulta [`.agents/hooks.md`](./.agents/hooks.md) antes de interpretar una petición sobre "hooks".
 
-### 4. Ejecución orientada a objetivos
+- Aquí `hooks` significa automation hooks del workflow y del tooling.
 
-- Transforma tareas en objetivos verificables.
-- "Añadir validación" → "escribir pruebas para entradas inválidas, luego hacer que pasen"
-- Para tareas de varios pasos, indica un plan breve con verificación por paso.
+## Respuesta y prompting
 
----
+- Sé directo y breve.
+- Si el usuario trae un prompt, revísalo críticamente antes de ejecutarlo.
+- Si la mejora es obvia y segura, mejóralo y sigue.
+- Si cambia el alcance, pide confirmación.
 
-## Arnes para subagentes
+## Qué no debe pasar
 
-Cuando delegues trabajo a subagentes (task tool), sé explícito:
-
-- **Tipo de subagente**: elige el más ligero que baste (explore para búsquedas, general para implementación).
-- **Instrucciones**: incluye stack, convenciones del archivo a editar, y el contexto mínimo necesario.
-- **Verificación**: especifica qué comprobar al terminar (lint, typecheck, test).
-- **Salida esperada**: di exactamente qué debe devolver el subagente al terminar.
-- **No asumas conocimiento compartido**: el subagente no tiene contexto de la conversación actual; dáselo explícitamente.
-
----
-
-## Mentoría en prompting
-
-Javi está aprendiendo prompt engineering mientras construye el proyecto. Actúa como mentor:
-
-- **Antes de ejecutar** cualquier prompt que me déexit, revísalo críticamente.
-- **Diagnostica**: ¿está claro? ¿tiene ambigüedad? ¿le falta contexto, formato de salida, restricciones, ejemplos?
-- **Sugiere mejoras** concretas y explica por qué (la razón, no solo "mejor así").
-- **Dos versiones**: si tiene sentido, muestra su prompt original y una versión mejorada con lo que cambió y por qué.
-- **No retardes**: si el prompt es urgente y está bien, dilo y ejecuta. Si necesita mejora pero es rápido, mejora y ejecuta. Si necesita discusión, para y pregunta.
-
-El objetivo es que Javi escriba mejores prompts con el tiempo, no que yo los reescriba siempre.
-
-## Convenciones del proyecto
-
-Las reglas detalladas están en `openspec/changes/project-conventions/specs/`:
-
-| Spec | Contenido |
-|------|-----------|
-| `directory-structure` | Organización de front/, backend/, shared/ |
-| `typescript-patterns` | Strict mode, DRY, SRP, named exports, interface vs type |
-| `react-patterns` | `export function`, Tailwind CSS 4, 200-400 líneas/archivo, hooks |
-| `mastra-patterns` | Zod schemas, agente tipado, workflows, thread por proyecto |
-| `supabase-patterns` | Cliente tipado, RLS, service role, migraciones SQL |
-| `code-documentation` | Comentarios en español, JSDoc, "why not what", sin código comentado |
-| `testing-patterns` | Vitest co-locado, tests por ticket, dominio sin mocks |
-
-## Gestión de dependencias
-
-Las instalaciones de paquetes las hace siempre Javi. Claude no ejecuta `pnpm add` ni instala dependencias.
-
-Si durante una tarea se detecta que falta una dependencia:
-- Notificar: "Falta `<paquete>` — ejecuta `pnpm add <paquete>` en `<directorio>`"
-- Esperar confirmación de que está instalado antes de continuar
-
----
-
-## Normas de código
-
-- Prioridad: código legible y auditable por humanos e IAs.
-- Convenciones del archivo existente > preferencias personales.
-- Nombrado claro > comentarios. Los comentarios explican el "por qué", no el "qué".
-- Una responsabilidad por módulo. Archivos cortos (200-400 líneas).
-- TypeScript estricto. Sin `any`.
-- Funciones de 10-50 líneas. Si excede, extraer responsabilidad.
+- No duplicar reglas largas que ya viven en `AGENTS.md`.
+- No inventar especialistas ad hoc si ya existe uno reusable.
+- No saltarse el flujo de propose/aprobación/apply cuando aplique.
