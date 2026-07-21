@@ -39,10 +39,12 @@ interface SidebarProps {
   canvasSize: { width: number; height: number }
   onControlChange: (key: string, value: unknown) => void
   onCanvasApply: (size: { width: number; height: number }) => void
+  showControls?: boolean
   // SnapshotsPanel
   snapshots: Snapshot[]
   onSnapshotSave: (label: string) => void
   onSnapshotLoad: (snapshot: Snapshot) => void
+  onShowGrid?: () => void
   showSnapshots?: boolean
   // ChatPanel
   messages: ChatMessage[]
@@ -73,9 +75,11 @@ export function Sidebar({
   canvasSize,
   onControlChange,
   onCanvasApply,
+  showControls = true,
   snapshots,
   onSnapshotSave,
   onSnapshotLoad,
+  onShowGrid,
   showSnapshots = true,
   messages,
   onChatSend,
@@ -232,19 +236,22 @@ export function Sidebar({
           </div>
         )}
 
-        <ParamsControls
-          controls={controls}
-          values={values}
-          canvasSize={canvasSize}
-          onControlChange={onControlChange}
-          onCanvasApply={onCanvasApply}
-        />
+        {showControls && (
+          <ParamsControls
+            controls={controls}
+            values={values}
+            canvasSize={canvasSize}
+            onControlChange={onControlChange}
+            onCanvasApply={onCanvasApply}
+          />
+        )}
 
         {showSnapshots && (
           <SnapshotsPanel
             snapshots={snapshots}
             onSave={onSnapshotSave}
             onLoad={onSnapshotLoad}
+            onShowGrid={onShowGrid}
           />
         )}
 

@@ -72,10 +72,11 @@ export interface Database {
           project_id: string
           user_id: string
           label: string | null
-          // Combinación de valores de parámetros (añadida por la migración de workspace-ui)
           values: Json | null
           sketch_js: string | null
           config_yaml: string | null
+          preview_url: string | null
+          is_favorite: boolean
           created_at: string
         }
         Insert: {
@@ -86,6 +87,8 @@ export interface Database {
           values?: Json | null
           sketch_js?: string | null
           config_yaml?: string | null
+          preview_url?: string | null
+          is_favorite?: boolean
           created_at?: string
         }
         Update: {
@@ -96,6 +99,8 @@ export interface Database {
           values?: Json | null
           sketch_js?: string | null
           config_yaml?: string | null
+          preview_url?: string | null
+          is_favorite?: boolean
           created_at?: string
         }
         Relationships: []
