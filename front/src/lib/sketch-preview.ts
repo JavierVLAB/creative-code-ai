@@ -49,7 +49,7 @@ export function captureSketchPreview(
       }
 
       window.addEventListener('message', handler)
-      iframe.contentWindow!.postMessage({ type: 'CAPTURE_CANVAS' }, '*')
+      if (iframe) iframe.contentWindow!.postMessage({ type: 'CAPTURE_CANVAS' }, '*')
     }
 
     tryCapture()

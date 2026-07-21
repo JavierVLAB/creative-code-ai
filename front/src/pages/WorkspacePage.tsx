@@ -306,23 +306,6 @@ export function WorkspacePage() {
     })
   }
 
-  function handleBulkFavorite() {
-    const ids = Array.from(selectedSnapshotIds)
-    if (ids.length === 0) return
-
-    setSnapshots(prev =>
-      prev.map(s =>
-        ids.includes(s.id) ? { ...s, isFavorite: !s.isFavorite } : s
-      )
-    )
-    ids.forEach(id => {
-      const snapshot = snapshots.find(s => s.id === id)
-      if (snapshot) {
-        supabase.from('snapshots').update({ is_favorite: !snapshot.isFavorite }).eq('id', id)
-      }
-    })
-  }
-
   function handleDeleteSingle(ids: string[]) {
     if (ids.length === 0) return
 
@@ -426,7 +409,7 @@ export function WorkspacePage() {
                 <SnapshotGrid
                   snapshots={snapshots}
                   selectedIds={selectedSnapshotIds}
-                  favoriteIds={snapshots.filter(s => s.isFavorite).map(s => s.id)}
+                  favoriteIds={new Set(snapshots.filter(s => s.isFavorite).map(s => s.id))}
                   onSelect={handleSnapshotSelect}
                   onLoad={handleSnapshotLoadFromGrid}
                   onToggleFavorite={handleToggleFavorite}
