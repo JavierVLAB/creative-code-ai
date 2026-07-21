@@ -8,9 +8,10 @@ interface SnapshotsPanelProps {
   snapshots: Snapshot[]
   onSave: (label: string) => void
   onLoad: (snapshot: Snapshot) => void
+  onShowGrid?: () => void
 }
 
-export function SnapshotsPanel({ snapshots, onSave, onLoad }: SnapshotsPanelProps) {
+export function SnapshotsPanel({ snapshots, onSave, onLoad, onShowGrid }: SnapshotsPanelProps) {
   const [label, setLabel] = useState('')
 
   function handleSave() {
@@ -22,7 +23,7 @@ export function SnapshotsPanel({ snapshots, onSave, onLoad }: SnapshotsPanelProp
 
   return (
     <div style={{ borderBottom: '1px solid var(--line)', padding: 'var(--padding-module) var(--padding-section)' }}>
-      {/* Cabecera: título de sección + botón Guardar en la misma fila */}
+      {/* Cabecera: título de sección + botones */}
       <div
         style={{
           display: 'flex',
@@ -39,29 +40,56 @@ export function SnapshotsPanel({ snapshots, onSave, onLoad }: SnapshotsPanelProp
         }}>
           Snapshots
         </span>
-        <button
-          onClick={handleSave}
-          style={{
-            fontSize: 'var(--btn-font-size)',
-            padding: 'var(--btn-padding)',
-            borderRadius: 'var(--radius-sm)',
-            border: '1px solid var(--line)',
-            background: 'var(--bg2)',
-            color: 'var(--btn-color)',
-            cursor: 'pointer',
-            fontFamily: 'inherit',
-          }}
-          onMouseEnter={e => {
-            ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--t1)'
-            ;(e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--t3)'
-          }}
-          onMouseLeave={e => {
-            ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--btn-color)'
-            ;(e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--line)'
-          }}
-        >
-          Guardar
-        </button>
+        <div style={{ display: 'flex', gap: 'var(--space-1)' }}>
+          {snapshots.length > 0 && onShowGrid && (
+            <button
+              onClick={onShowGrid}
+              style={{
+                fontSize: 'var(--btn-font-size)',
+                padding: 'var(--btn-padding)',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--line)',
+                background: 'var(--bg2)',
+                color: 'var(--btn-color)',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+              }}
+              onMouseEnter={e => {
+                ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--t1)'
+                ;(e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--t3)'
+              }}
+              onMouseLeave={e => {
+                ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--btn-color)'
+                ;(e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--line)'
+              }}
+            >
+              Grid
+            </button>
+          )}
+          <button
+            onClick={handleSave}
+            style={{
+              fontSize: 'var(--btn-font-size)',
+              padding: 'var(--btn-padding)',
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid var(--line)',
+              background: 'var(--bg2)',
+              color: 'var(--btn-color)',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+            onMouseEnter={e => {
+              ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--t1)'
+              ;(e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--t3)'
+            }}
+            onMouseLeave={e => {
+              ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--btn-color)'
+              ;(e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--line)'
+            }}
+          >
+            Guardar
+          </button>
+        </div>
       </div>
 
       {/* Input de nombre del snapshot — exclusivo del nuevo; no está en el prototipo */}

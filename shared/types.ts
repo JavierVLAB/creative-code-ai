@@ -19,6 +19,8 @@ export interface Snapshot {
   projectId: string
   label?: string
   values: Record<string, string | number>
+  previewUrl?: string
+  isFavorite?: boolean
   createdAt: string
 }
 

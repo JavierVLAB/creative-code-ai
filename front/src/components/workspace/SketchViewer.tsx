@@ -66,6 +66,22 @@ function buildSrcdoc(sketchJs: string): string {
 </head>
 <body>
 <script>
+// Handler para capturar el canvas y devolverlo al padre
+window.addEventListener('message', function(event) {
+  if (event.data && event.data.type === 'CAPTURE_CANVAS') {
+    var canvas = document.querySelector('canvas')
+    if (canvas) {
+      try {
+        var dataUrl = canvas.toDataURL('image/png')
+        window.parent.postMessage({ type: 'CAPTURED_CANVAS', dataUrl: dataUrl }, '*')
+      } catch (e) {
+        window.parent.postMessage({ type: 'CAPTURED_CANVAS', dataUrl: null }, '*')
+      }
+    } else {
+      window.parent.postMessage({ type: 'CAPTURED_CANVAS', dataUrl: null }, '*')
+    }
+  }
+})
 ${sketchJs}
 </script>
 </body>

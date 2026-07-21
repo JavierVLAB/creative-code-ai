@@ -120,3 +120,21 @@ Cuando el workspace opera en modo efimero, la app SHALL aplicar cambios de contr
 #### Scenario: Accion de persistencia no disponible
 - **WHEN** el workspace esta en modo efimero
 - **THEN** las acciones de guardar snapshots, memoria o cambios de agente no estan disponibles
+
+### Requirement: El workspace soporta modo grid de snapshots
+El workspace SHALL alternar entre el modo sketch (iframe) y el modo grid (miniaturas de snapshots) mediante tabs en la esquina superior izquierda del canvas.
+
+#### Scenario: Tabs de modo visibles
+- **WHEN** el workspace está activo
+- **THEN** se muestran dos tabs (grid y sketch) en la esquina superior izquierda del canvas
+- **THEN** el tab activo está resaltado
+
+#### Scenario: Cambio de modo
+- **WHEN** el usuario hace click en un tab
+- **THEN** el modo del canvas cambia
+- **THEN** en modo sketch se muestra el iframe; en modo grid se muestra el grid de snapshots
+
+#### Scenario: Modo grid oculta paneles laterales
+- **WHEN** el modo grid está activo
+- **THEN** se ocultan el explorador de archivos y los controles de parámetros
+- **THEN** el sidebar sigue mostrando snapshots y chat

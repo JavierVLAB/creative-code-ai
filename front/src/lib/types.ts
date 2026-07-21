@@ -109,5 +109,7 @@ export interface Snapshot {
   projectId: string
   label: string
   values: ParamValues
+  previewUrl?: string
+  isFavorite?: boolean
   createdAt: string
 }
