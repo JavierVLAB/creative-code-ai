@@ -102,6 +102,16 @@ export interface Template {
   updatedAt: string
 }
 
+// Origen de un proyecto nuevo al crearlo. "Pedirle a la IA" no es un origen de
+// datos distinto: siempre parte de { type: 'blank' } y la descripción inicial
+// se envía como primer mensaje de chat una vez creado el proyecto.
+// El origen "template" lleva el contenido ya resuelto (la plantilla ya está
+// cargada en memoria por quien la elige, vía usePublishedTemplates) — evita
+// un round-trip extra a Supabase dentro de createProject.
+export type ProjectOrigin =
+  | { type: 'blank' }
+  | { type: 'template'; sketchJs: string; configYaml: string }
+
 // Snapshot: combinación guardada de valores de parámetros de un proyecto.
 // Persistido en la tabla `snapshots` de Supabase (columna `values`).
 export interface Snapshot {

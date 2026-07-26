@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom'
 
 import { SnapshotGrid } from '../components/workspace/SnapshotGrid'
 import { ConfirmDialog } from '../components/workspace/ConfirmDialog'
@@ -66,6 +66,9 @@ function extractCanvasSize(configYaml: string | null): { width: number; height: 
 export function WorkspacePage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
+  const initialPrompt = (location.state as { initialPrompt?: string } | null)?.initialPrompt
+  const initialPromptSentRef = useRef(false)
 
   const [project, setProject] = useState<Project | null>(null)
   const [controls, setControls] = useState<Control[]>([])
@@ -110,6 +113,17 @@ export function WorkspacePage() {
     load()
     return () => { active = false }
   }, [id])
+
+  // Envía la descripción inicial ("que me ayude la IA") como primer mensaje de
+  // chat en cuanto el proyecto ya cargó, y limpia el state de navegación para
+  // que un refresh no la reenvíe.
+  useEffect(() => {
+    if (!project || !initialPrompt || initialPromptSentRef.current) return
+    initialPromptSentRef.current = true
+    handleChatSend(initialPrompt)
+    navigate(location.pathname, { replace: true })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [project, initialPrompt])
 
   // Limpia el debounce pendiente del editor al desmontar.
   useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current) }, [])

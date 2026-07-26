@@ -34,3 +34,10 @@ Los visitantes anonimos SHALL poder leer solo plantillas publicadas. Los visitan
 #### Scenario: Visitante intenta modificar plantillas
 - **WHEN** un visitante sin sesion intenta insertar, actualizar o borrar una plantilla
 - **THEN** Supabase bloquea la operacion
+
+### Requirement: Las plantillas publicadas son reutilizables al crear un proyecto autenticado
+Ademas del playground publico, el sistema SHALL permitir usar una plantilla publicada como origen de un proyecto nuevo de un usuario autenticado, copiando su `sketch_js` y `config_yaml` al crear el proyecto.
+
+#### Scenario: Crear proyecto desde plantilla
+- **WHEN** un usuario autenticado elige el origen "plantilla" al crear un proyecto y selecciona una plantilla publicada
+- **THEN** el proyecto se crea con el `sketch_js`/`config_yaml` de esa plantilla, listo para editar en el workspace
