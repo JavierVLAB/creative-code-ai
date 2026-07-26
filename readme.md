@@ -1,5 +1,7 @@
 # CurateArtAI — Documentación de producto y diseño técnico
 
+**Vídeo (explicación de la app):** https://youtu.be/swyhTpUhEL0
+
 ## Índice
 
 0. [Ficha del proyecto](#0-ficha-del-proyecto)
@@ -65,7 +67,7 @@ Agrupadas por área. La versión actual cubre un subconjunto; el resto marca la 
 - **Cuentas y biblioteca:** registro/login con sesión persistente; biblioteca de proyectos en la nube (crear, abrir, guardar, borrar).
 - **Exploración:** visor del sketch en iframe aislado; controles de parámetros generados automáticamente desde la configuración.
 - **Agente de IA:** edición de configuración y código en lenguaje natural; generación de un sketch completo desde una descripción; historial de conversación por proyecto; memoria de proyecto que el agente lee y propone actualizar; editor de código y explorador de archivos como apoyo.
-- **Curación:** snapshots de parámetros; (visión) generación por lotes de variaciones y grid de comparación con favoritas.
+- **Curación:** snapshots de parámetros con preview visual; grid de comparación con selección múltiple y favoritos; (visión) generación por lotes de variaciones.
 - **Biblioteca de plantillas:** plantillas publicadas variadas (creative coding: ruido Perlin, tramado/dithering, mosaicos geométricos, trazo para plotter), reutilizables desde el playground público y al crear un proyecto autenticado.
 - **Producción y export:** exportación de sketch a SVG vectorial real (para pen plotter y patrones geométricos) vía addon `p5.js-svg`; control de subida de imagen (`type: image`) para plantillas que procesan una imagen de origen (ej. tramado para serigrafía). (visión pendiente) alta resolución de exportación y separación de capas multicolor para serigrafía.
 
@@ -292,7 +294,7 @@ npx mastra studio deploy  --project curateartai-backend --env-file .env   # opci
 
 - **Unitarios** (Vitest): parseo de `config.yaml`, generación de controles, sincronización del sketch, hook del agente y tools del backend.
 - **Integración**: CRUD con RLS y contrato del agente.
-- **E2E** (Playwright, `front/e2e/`): golden path — login → crear proyecto desde plantilla → workspace → mover un control → verificar reactividad del sketch (`postMessage`) → limpiar el proyecto creado. Se ejecuta a mano con `pnpm test:e2e` (requiere `pnpm dev` corriendo y un usuario de test en Supabase); no está integrado en CI todavía.
+- **E2E** (Playwright, `front/e2e/`): golden path — login → crear proyecto en blanco → workspace → mover un control → verificar reactividad del sketch (`postMessage`) → limpiar el proyecto creado. Se ejecuta a mano con `pnpm test:e2e` (requiere `pnpm dev` corriendo y un usuario de test en Supabase); no está integrado en CI todavía.
 
 ---
 
@@ -336,6 +338,8 @@ erDiagram
         uuid project_id FK
         text label
         jsonb values
+        text preview_url
+        boolean is_favorite
         timestamptz created_at
     }
     VARIATIONS {
@@ -386,12 +390,15 @@ create table projects (
 create index on projects (user_id);
 
 -- Combinación de valores guardada y recuperable. values = { paramId: number|string }.
+-- preview_url: miniatura del canvas en el momento del snapshot (bucket snapshot-previews).
 create table snapshots (
-  id         uuid primary key default gen_random_uuid(),
-  project_id uuid not null references projects(id) on delete cascade,
-  label      text,
-  values     jsonb not null,
-  created_at timestamptz not null default now()
+  id           uuid primary key default gen_random_uuid(),
+  project_id   uuid not null references projects(id) on delete cascade,
+  label        text,
+  values       jsonb not null,
+  preview_url  text,
+  is_favorite  boolean not null default false,
+  created_at   timestamptz not null default now()
 );
 create index on snapshots (project_id);
 
@@ -531,6 +538,15 @@ Otros contratos del sistema, fuera de esta API REST:
 - Cargar un snapshot restaura los valores y actualiza el sketch.
 - Los snapshots quedan asociados al proyecto y se recuperan al reabrirlo.
 
+#### Historia de Usuario 6 — Comparación y curación
+
+**Como** usuario con muchos snapshots, **quiero** verlos en un grid lado a lado y marcar mis favoritos, **para** quedarme con las mejores piezas.
+
+**Criterios de aceptación**
+- El usuario ve un grid de snapshots del proyecto (con preview visual), alternable con la vista del sketch.
+- Puede seleccionar varios, marcar/desmarcar favoritos y borrar con confirmación.
+- Los favoritos se conservan y se recuperan al reabrir el proyecto.
+
 #### Historia de Usuario 8 — Plantillas de producción y exportación SVG
 
 **Como** artista, **quiero** partir de plantillas orientadas a técnicas de producción física (plotter, serigrafía) y exportar mi sketch a SVG, **para** poder llevarlo fuera de la pantalla.
@@ -561,15 +577,6 @@ Otros contratos del sistema, fuera de esta API REST:
 - El usuario elige qué parámetros varían y en qué rango.
 - El sistema genera N variaciones.
 - Cada variación guarda sus valores y una previsualización.
-
-#### Historia de Usuario 6 — Comparación y curación
-
-**Como** usuario con muchas variaciones, **quiero** verlas en un grid lado a lado y marcar mis favoritas, **para** quedarme con las mejores piezas.
-
-**Criterios de aceptación**
-- El usuario ve un grid de variaciones del proyecto.
-- Puede marcar y desmarcar favoritas.
-- Las favoritas se conservan y se recuperan al reabrir.
 
 #### Historia de Usuario 7 — Playground público de plantillas
 
@@ -603,7 +610,7 @@ Otros contratos del sistema, fuera de esta API REST:
 - **Criterios de aceptación:** devuelve un objeto válido según el schema; cada tool valida su salida (YAML parseable / JS sin errores evidentes); los guardrails cortan bucles y fallos repetidos; una petición sin token válido devuelve 401; el historial se recupera al reabrir el proyecto.
 
 **Ticket 3 (Frontend) — Visor del sketch**
-- **Historia:** Historia 2 (controles visuales) / render.
+- **Historia:** H2 (controles visuales).
 - **Descripción:** componente que monta el sketch en un `<iframe>` aislado, le inyecta los valores y gestiona la comunicación por `postMessage`.
 - **Tareas:** iframe sandboxed con su HTML de arranque; inyección de `window.__SKETCH__` (config + valores); manejo de `SKETCH_READY`/`SKETCH_ERROR`; ciclo de vida de las blob URLs (crear/revocar); recarga al cambiar el canvas; actualización en tiempo real al mover un control.
 - **Criterios de aceptación:** el sketch monta y renderiza; mover un control actualiza el sketch al instante; un error del sketch se muestra sin romper la app; no se filtran blob URLs entre recargas.
@@ -631,6 +638,32 @@ Otros contratos del sistema, fuera de esta API REST:
 - **Descripción:** el modal de creación de proyecto pasa a ofrecer 3 orígenes (en blanco / IA / plantilla) en una única vista sin pasos; de paso se corrige un bug preexistente que dejaba el chat del agente sin memoria configurada.
 - **Tareas:** boilerplate mínimo válido para el origen "en blanco" (`front/src/lib/blankSketch.ts`); extender `useProjects.createProject` para aceptar el origen elegido; rediseñar `CreateProjectDialog` (nombre → origen → sección inline según elección); enviar automáticamente la descripción del origen "IA" como primer mensaje de chat tras crear el proyecto y navegar al workspace; reutilizar la tabla `templates` para el origen "plantilla"; configurar `memory` en `sketch-agent.ts` con `@mastra/memory`, compartiendo el `LibSQLStore` de la instancia de Mastra.
 - **Criterios de aceptación:** los 3 orígenes crean un proyecto usable; el origen "IA" deja el primer mensaje ya enviado al llegar al workspace; el origen "plantilla" copia el contenido elegido; el chat del agente responde sin el error de memoria no configurada.
+
+**Ticket 8 (Backend) — Observabilidad y evals locales del agente**
+- **Descripción:** trazas del agente visibles en Mastra Studio (tools, tiempos, fallos) y una batería de 5 evals representativas para validar comportamiento y guardrails en desarrollo.
+- **Criterios de aceptación:** Studio muestra trazas reales de llamadas locales; las 5 evals son ejecutables y revisables; alcance solo local, no llega a producción.
+
+**Ticket 9 (Infraestructura) — Despliegue a Vercel + Mastra Cloud**
+- **Descripción:** desplegar el frontend en Vercel y el backend en Mastra Cloud, con CORS, variables de entorno y redirect URLs de Supabase Auth ajustados al dominio de producción.
+- **Criterios de aceptación:** la app es accesible públicamente; login y agente funcionan en producción; orden de despliegue documentado en §2.4.
+
+**Ticket 10 (Frontend) — Landing pública redirige al demo**
+- **Historia:** H7 (playground público).
+- **Descripción:** la raíz `/` decide destino según sesión: sin sesión va a `/playground`, con sesión a `/app`.
+- **Criterios de aceptación:** un visitante sin cuenta llega al demo público desde `/`; el flujo con sesión no cambia.
+
+**Ticket 11 (Backend) — Reducir CPU idle en Mastra Cloud**
+- **Descripción:** quitar observability y Postgres externo de la instancia Mastra para que el backend hiberne por inactividad, evitando coste sin tráfico.
+- **Criterios de aceptación:** el backend hiberna sin uso; el consumo de CPU idle baja a niveles comparables con otros proyectos Mastra del usuario.
+
+**Ticket 12 (Frontend + Datos) — Grid de curación de snapshots con favoritos**
+- **Historia:** H6 (comparación y curación).
+- **Descripción:** captura y guarda un preview del canvas al crear un snapshot; vista grid alternable con el sketch; selección múltiple, favoritos y borrado con confirmación.
+- **Criterios de aceptación:** cada snapshot guarda su preview; el grid marca/desmarca favoritos y persiste el estado al reabrir; borrar pide confirmación.
+
+**Ticket 13 (Testing) — Primer test E2E golden path**
+- **Descripción:** Playwright configurado en `front/e2e/`, con un test que cubre login → crear proyecto en blanco → workspace → mover un control → verificar reactividad del sketch.
+- **Criterios de aceptación:** el test pasa localmente con `pnpm test:e2e` (requiere `pnpm dev` y usuario de test en Supabase).
 
 ---
 
@@ -673,3 +706,29 @@ En esta fase del proyecto no se ha seguido todavía un flujo formal de pull requ
 - **Ticket 7 (Frontend + Backend)**
   - `0b41d5dc` — `feat new sketches`
     - Añade la selección de origen (en blanco / IA / plantilla) al crear un proyecto, boilerplate mínimo válido, envío automático del primer mensaje del chat para el origen "IA", y fix del bug de memoria del agente (`@mastra/memory`).
+
+- **Ticket 8 (Backend)**
+  - `f0c6907d` — `feat: agents observability`
+    - Añade observabilidad local en Mastra Studio y la batería de 5 evals del agente.
+
+- **Ticket 9 (Infraestructura)**
+  - `98583a6f` — `preparando el despliegue`
+  - `431a745a` — `feat: landing pública al demo + documentación de despliegue`
+    - Configuran el despliegue a Vercel (frontend) y Mastra Cloud (backend), con CORS y documentación del proceso.
+
+- **Ticket 10 (Frontend)**
+  - `431a745a` — `feat: landing pública al demo + documentación de despliegue`
+    - Añade el redirect de `/` según sesión (con sesión a `/app`, sin sesión a `/playground`).
+
+- **Ticket 11 (Backend)**
+  - `066512bd` — `fix: backend hiberna en Mastra Cloud (sin observability ni Postgres externo)`
+    - Elimina observability y Postgres externo de la instancia Mastra para permitir hibernación por inactividad.
+
+- **Ticket 12 (Frontend + Datos)**
+  - `e5f6de9b` — `feat: persistir favoritos + mejoras en grid de snapshots`
+  - `c6dcb701` — `feat: persistir favoritos + mejoras en grid de snapshots vercel update`
+    - Añaden preview visual por snapshot, vista grid con selección múltiple, favoritos y borrado con confirmación.
+
+- **Ticket 13 (Testing)**
+  - `0f808c0c` — `test: primer E2E con Playwright — golden path de creación de proyecto`
+    - Configura Playwright en `front/e2e/` y escribe el primer test del golden path.
