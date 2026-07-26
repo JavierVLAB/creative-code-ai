@@ -531,6 +531,16 @@ Otros contratos del sistema, fuera de esta API REST:
 - Un sketch puede exponer exportación a SVG real (vectorial); el botón "Exportar SVG" solo aparece si el sketch actual la soporta.
 - La descarga del SVG se dispara desde la aplicación, nunca desde dentro del iframe aislado del sketch.
 
+#### Historia de Usuario 9 — Selección de origen al crear un sketch
+
+**Como** artista, **quiero** elegir si mi sketch nuevo empieza en blanco, lo genera la IA a partir de una descripción, o parte de una plantilla existente, **para** no enfrentarme a un lienzo vacío cada vez que creo un proyecto.
+
+**Criterios de aceptación**
+- El modal de creación de proyecto pide el nombre y, en la misma vista (sin pasos), el origen del sketch: en blanco, IA o plantilla.
+- El origen "en blanco" crea el proyecto con un sketch mínimo válido (no vacío ni roto).
+- El origen "IA" permite describir el sketch deseado; esa descripción se envía sola como primer mensaje del chat al entrar al workspace.
+- El origen "plantilla" permite elegir entre las plantillas publicadas y copia su contenido al proyecto nuevo.
+
 ### Historias pendientes / visión de curación
 
 #### Historia de Usuario 5 — Variaciones por lotes
@@ -606,6 +616,12 @@ Otros contratos del sistema, fuera de esta API REST:
 - **Tareas:** cargar el addon `p5.js-svg` en el iframe del sketch; nuevo tipo de control `type: image` en `config.yaml` (contrato) con componente de subida/selección en el sidebar; usar la tabla `assets` ya existente + nuevo bucket `sketch-uploads` (Storage, RLS por dueño del proyecto) para persistir imágenes subidas en proyectos autenticados, con fallback a `FileReader`/data URL en el playground efímero; protocolo `EXPORT_SVG`/`EXPORTED_SVG` (con chequeo previo `HAS_SVG_EXPORT`) para pedir el SVG al sketch y descargarlo desde fuera del iframe sandboxed; escribir y revisar las 4 plantillas nuevas; migraciones de borrado del contenido anterior sin revisar y de alta del contenido nuevo.
 - **Criterios de aceptación:** las 4 plantillas nuevas se ven y funcionan en el playground y en un proyecto; el botón "Exportar SVG" solo aparece en sketches que lo soportan; la imagen subida se ve reflejada en el sketch; ningún sketch existente sin controles de imagen o SVG se ve afectado.
 
+**Ticket 7 (Frontend + Backend) — Selección de origen al crear un proyecto**
+- **Historia:** H9 (selección de origen al crear un sketch).
+- **Descripción:** el modal de creación de proyecto pasa a ofrecer 3 orígenes (en blanco / IA / plantilla) en una única vista sin pasos; de paso se corrige un bug preexistente que dejaba el chat del agente sin memoria configurada.
+- **Tareas:** boilerplate mínimo válido para el origen "en blanco" (`front/src/lib/blankSketch.ts`); extender `useProjects.createProject` para aceptar el origen elegido; rediseñar `CreateProjectDialog` (nombre → origen → sección inline según elección); enviar automáticamente la descripción del origen "IA" como primer mensaje de chat tras crear el proyecto y navegar al workspace; reutilizar la tabla `templates` para el origen "plantilla"; configurar `memory` en `sketch-agent.ts` con `@mastra/memory`, compartiendo el `LibSQLStore` de la instancia de Mastra.
+- **Criterios de aceptación:** los 3 orígenes crean un proyecto usable; el origen "IA" deja el primer mensaje ya enviado al llegar al workspace; el origen "plantilla" copia el contenido elegido; el chat del agente responde sin el error de memoria no configurada.
+
 ---
 
 ## 7. Pull requests
@@ -641,5 +657,9 @@ En esta fase del proyecto no se ha seguido todavía un flujo formal de pull requ
     - Implementa `/playground`, biblioteca de plantillas, modo efímero y desactivación de IA en la demo pública.
 
 - **Ticket 6 (Frontend + Datos)**
-  - _(pendiente de completar con el hash del commit/PR)_ — `feat: sketch templates refresh`
+  - `f94fdd85` — `feat: refresco de biblioteca de plantillas + exportación SVG y subida de imagen`
     - Reemplaza el contenido de la biblioteca de plantillas (tramado para serigrafía, espiral para plotter, flow field de Perlin, mosaico de arcos); añade control `type: image` y exportación SVG (`p5.js-svg`, protocolo `EXPORT_SVG`/`HAS_SVG_EXPORT`); usa la tabla `assets` existente + nuevo bucket `sketch-uploads`.
+
+- **Ticket 7 (Frontend + Backend)**
+  - `0b41d5dc` — `feat new sketches`
+    - Añade la selección de origen (en blanco / IA / plantilla) al crear un proyecto, boilerplate mínimo válido, envío automático del primer mensaje del chat para el origen "IA", y fix del bug de memoria del agente (`@mastra/memory`).

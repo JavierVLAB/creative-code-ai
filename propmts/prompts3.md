@@ -32,6 +32,18 @@ Añadir vista de cuadrícula de snapshots con previews visuales, selección múl
 
 ---
 
+# Sesión 26 julio 2026 — Creación de sketch con 3 orígenes
+
+## Change: `sketch-creation-origins` (archivado)
+
+Un proyecto nuevo insertaba `sketch_js`/`config_yaml` como `null` — el workspace aterrizaba vacío, sin ningún camino para empezar. Se añadieron 3 orígenes al crear: en blanco (boilerplate mínimo válido), pedírselo a la IA (reenvía la descripción como primer mensaje de chat, sin tools nuevas — `edit_params`/`edit_sketch` ya validan solo la salida del LLM) y copiar una plantilla publicada. El primer intento de modal fue en pasos (wizard); corregido tras feedback a un único modal sin pasos. Se descubrió que el iframe solo carga p5.js (three.js no funciona en la práctica pese al spec) y se decidió dejarlo fuera. También se escribieron 4 plantillas nuevas sin revisión creativa directa de Javi — no le gustaron y se rehicieron en la sesión siguiente.
+
+De paso se encontró y arregló un bug preexistente (desde `frontend-agent`): el agente no tenía `memory` configurada pese a que el workflow siempre pasaba `threadId`/`resourceId`, rompiendo el chat. Sin tests que cubrieran esa integración real. Fix: se instaló `@mastra/memory` y se configuró compartiendo el mismo `LibSQLStore` de la instancia de Mastra.
+
+Tests en verde (front 47/47, backend 16/16), build limpio. Change archivado; Javi commiteó él mismo en `feat-new-sketches`.
+
+---
+
 # Sesión 26 julio 2026 — Refresco de plantillas + exportación SVG
 
 ## Change: `sketch-templates-refresh` (archivado)
@@ -53,9 +65,9 @@ Se pidió reemplazar 4 plantillas insertadas en una sesión anterior sin revisi�
 - El botón "Exportar SVG" se mostraba siempre (sin comprobar soporte real), y luego un `setSvgExportAvailable(false)` mal puesto en `sendInit`/`sendRestart` anulaba el resultado correcto del chequeo — quitado.
 - Botón/textos no seguían los tokens de diseño del proyecto (`--btn-*`) y quedaba pegado a una línea divisoria innecesaria — se integró dentro del bloque de "Parámetros" en vez de ser una sección aparte.
 - El mosaico de arcos: los dos ángulos de intersección no estaban ordenados, así que el hueco que da la sensación de "un arco pasa por debajo" no se producía y los arcos se cruzaban.
-- "Snapshots desaparecidos" no era un bug: el playground público (`/playground`) tiene `showSnapshots={false}` a propósito (no persiste nada); Javi estaba probando ahí.
+- "Snapshots desaparecidos" no era un bug: el playground público (`/playground`) tiene `showSnapshots={false}` a propósito (no persiste nada); 
 
 ### Nota de proceso
 
-Al revisar el alcance de "subir imagen", se descubrió que la tabla `assets` ya existía en el schema inicial sin usarse — se replanteó en vivo con Javi para aprovecharla (con selector de imágenes ya subidas) en vez de limitar el alcance a solo subir/reemplazar.
+Al revisar el alcance de "subir imagen", se descubrió que la tabla `assets` ya existía en el schema inicial sin usarse — se replanteó en vivo con para aprovecharla (con selector de imágenes ya subidas) en vez de limitar el alcance a solo subir/reemplazar.
 
