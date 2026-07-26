@@ -30,9 +30,17 @@ const corsOrigin = process.env.FRONTEND_ORIGIN
   ? [process.env.FRONTEND_ORIGIN, 'http://localhost:5173']
   : '*'
 
+// Storage local (SQLite), compartido entre la instancia de Mastra y la memoria del agente.
+// En Mastra Cloud la plataforma gestiona su propio storage; aquí se evita la conexión
+// persistente a Postgres externo (Supabase) que impedía hibernar.
+const storage = new LibSQLStore({
+  id: 'curateartai-local',
+  url: 'file:./mastra.db',
+})
+
 export const mastra = new Mastra({
   agents: {
-    'sketch-agent': createSketchAgent(),
+    'sketch-agent': createSketchAgent(storage),
   },
   workflows: {
     'agent-guardrails': createAgentGuardrailsWorkflow(),
@@ -41,13 +49,7 @@ export const mastra = new Mastra({
   ...(enableObservability
     ? { observability: new Observability({ default: { enabled: true } }) }
     : {}),
-  // Storage local (SQLite). En Mastra Cloud la plataforma gestiona su propio storage;
-  // aquí se evita la conexión persistente a Postgres externo (Supabase) que impedía hibernar.
-  // La memoria conversacional del agente pasa a ser efímera/gestionada por la plataforma en cloud.
-  storage: new LibSQLStore({
-    id: 'curateartai-local',
-    url: 'file:./mastra.db',
-  }),
+  storage,
   server: {
     // Sin auth a nivel de servidor: el Studio queda abierto en local (correcto para dev).
     // La verificación del JWT de Supabase se hace manualmente en el handler de /agent.

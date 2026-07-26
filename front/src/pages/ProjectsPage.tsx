@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useProjects } from '../hooks/useProjects'
 import { ProjectCard } from '../components/projects/ProjectCard'
 import { CreateProjectDialog } from '../components/projects/CreateProjectDialog'
+import type { ProjectOrigin } from '../lib/types'
 
 export function ProjectsPage() {
   const navigate = useNavigate()
@@ -12,10 +13,11 @@ export function ProjectsPage() {
   const [newBtnHover, setNewBtnHover] = useState(false)
   const [deleteBtnHover, setDeleteBtnHover] = useState(false)
 
-  async function handleCreate(name: string) {
-    const project = await createProject(name)
+  async function handleCreate(name: string, origin: ProjectOrigin, initialPrompt?: string) {
+    const project = await createProject(name, origin)
     setShowCreate(false)
-    if (project) navigate(`/app/projects/${project.id}`)
+    if (!project) return
+    navigate(`/app/projects/${project.id}`, initialPrompt ? { state: { initialPrompt } } : undefined)
   }
 
   async function handleDelete(id: string) {

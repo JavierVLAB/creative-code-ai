@@ -1,4 +1,6 @@
 import { Agent } from '@mastra/core/agent'
+import { Memory } from '@mastra/memory'
+import type { LibSQLStore } from '@mastra/libsql'
 import { createEditParamsTool } from '../tools/edit-params.js'
 import { createEditSketchTool } from '../tools/edit-sketch.js'
 import { createUpdateMemoryTool } from '../tools/update-memory.js'
@@ -46,12 +48,15 @@ Tu respuesta SIEMPRE debe ser un JSON con esta estructura:
 - Máximo 3 tool-calls por turno.
 - Un thread por proyecto: threadId = project.id, resourceId = user.id.`
 
-export function createSketchAgent() {
+// `storage` es el mismo LibSQLStore que usa la instancia de Mastra (ver mastra/index.ts) —
+// comparte la conexión en vez de abrir una segunda hacia el mismo archivo SQLite.
+export function createSketchAgent(storage: LibSQLStore) {
   return new Agent({
     id: 'sketch-agent',
     name: 'Sketch Agent',
     instructions: SYSTEM_PROMPT,
     model: 'anthropic/claude-sonnet-4-6',
+    memory: new Memory({ storage }),
     tools: {
       edit_params: createEditParamsTool(),
       edit_sketch: createEditSketchTool(),

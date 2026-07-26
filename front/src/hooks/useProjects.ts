@@ -1,8 +1,18 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { BLANK_CONFIG_YAML, BLANK_SKETCH_JS } from '../lib/blankSketch'
 import type { Database } from '../lib/database.types'
+import type { ProjectOrigin } from '../lib/types'
 
 type Project = Database['public']['Tables']['projects']['Row']
+
+// Exportada para tests: resuelve el sketch_js/config_yaml inicial según el origen elegido.
+export function resolveOriginContent(origin: ProjectOrigin): { sketchJs: string; configYaml: string } {
+  if (origin.type === 'template') {
+    return { sketchJs: origin.sketchJs, configYaml: origin.configYaml }
+  }
+  return { sketchJs: BLANK_SKETCH_JS, configYaml: BLANK_CONFIG_YAML }
+}
 
 export function useProjects() {
   const [projects, setProjects] = useState<Project[]>([])
@@ -24,13 +34,15 @@ export function useProjects() {
     setLoading(false)
   }
 
-  async function createProject(name: string): Promise<Project | null> {
+  async function createProject(name: string, origin: ProjectOrigin = { type: 'blank' }): Promise<Project | null> {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return null
 
+    const { sketchJs, configYaml } = resolveOriginContent(origin)
+
     const { data, error } = await supabase
       .from('projects')
-      .insert({ name, user_id: user.id })
+      .insert({ name, user_id: user.id, sketch_js: sketchJs, config_yaml: configYaml })
       .select()
       .single()
 
