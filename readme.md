@@ -95,7 +95,19 @@ El espacio de trabajo es de tema oscuro con paneles flotantes sobre un fondo de 
 8. Guarda un snapshot de los resultados más interesantes.
 9. Al volver, encuentra su proyecto, parámetros, snapshots e historial intactos.
 
-> Capturas de pantalla y vídeo de la experiencia: pendientes.
+**Vídeo (explicación de la app):** https://youtu.be/swyhTpUhEL0
+
+**Capturas de pantalla:**
+
+| | |
+|---|---|
+| Registro | ![Registro](Capturas/signup.png) |
+| Biblioteca de proyectos | ![Biblioteca de proyectos](Capturas/lista%20de%20proyectos%20de%20la%20cuenta.png) |
+| Sketch con controles (círculo con líneas random) | ![Sketch con controles](Capturas/ejemplo%20de%20sketch%20-%20circulo%20con%20lineas%20ramdon.png) |
+| Sketch con IDE de código integrado | ![Sketch con IDE de código](Capturas/ejemplo%20de%20sketch%20-%20ide%20de%20codigo%20.png) |
+| Sketch de mosaico (plantilla) | ![Sketch mosaico](Capturas/ejemplo%20de%20sketch%20mosaico.png) |
+| Grid de curación de snapshots | ![Grid de curación](Capturas/grid%20de%20curado%20de%20imagenes.png) |
+| Playground público (sin login) | ![Playground público](Capturas/playground%20abierto.png) |
 
 ### 1.4. Instrucciones de instalación
 
