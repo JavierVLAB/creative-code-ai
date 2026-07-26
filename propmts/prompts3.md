@@ -71,3 +71,26 @@ Se pidió reemplazar 4 plantillas insertadas en una sesión anterior sin revisi�
 
 Al revisar el alcance de "subir imagen", se descubrió que la tabla `assets` ya existía en el schema inicial sin usarse — se replanteó en vivo con para aprovecharla (con selector de imágenes ya subidas) en vez de limitar el alcance a solo subir/reemplazar.
 
+---
+
+# Sesión 26 julio 2026 — Primer test E2E con Playwright
+
+## Change: `add-e2e-golden-path` (archivado)
+
+`testing-patterns` ya exigía Playwright para E2E, pero no había ni la dependencia ni un solo test. Se eligió como primera historia el golden path: login → crear proyecto → workspace → mover un control → ver el sketch reaccionar (protocolo `postMessage`) → limpiar.
+
+### Lo que se construyó
+
+- `front/e2e/`: `playwright.config.ts` (sin `webServer` — asume `pnpm dev` ya corriendo), `auth.setup.ts` (login real contra `/login`, `storageState` reutilizado), `golden-path.spec.ts`, `README.md`.
+- Usuario de test dedicado en Supabase (creado por Javi vía `/signup`, credenciales en `front/.env.e2e`, nunca vistas por el agente).
+- `data-testid` añadidos en login, creación/borrado de proyecto, selección de origen/plantilla, iframe del sketch y sliders.
+
+### Descubrimientos durante la implementación (cambiaron el diseño sobre la marcha)
+
+- Un proyecto creado "en blanco" **no genera ningún control** (`config.yaml` solo trae el canvas, a propósito, para cumplir `sketch-contract`) — el "sketch demo" con slider de `sketch-workspace` solo aparece cuando `sketch_js` es `null`, algo que el flujo normal nunca produce. Se cambió el origen del test a "desde plantilla", tomando la primera plantilla publicada y su primer slider, sin fijar nombres ni `key` de parámetro (el catálogo de plantillas ya ha cambiado de contenido más de una vez).
+- El panel lateral de controles (`Sidebar.tsx`) arranca colapsado — el test no lo abría y se quedaba esperando un slider que nunca aparecía, hasta el timeout.
+- Mover el slider por script asignando `el.value` directamente no disparaba el `onChange` de React: React rastrea el valor en el propio nodo, así que hubo que escribir por el setter nativo del prototipo (`Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set`) antes de disparar el evento `input`.
+- El login de Supabase falló una vez por email sin confirmar tras el `signUp` inicial (la app navega a `/app` aunque no haya sesión real si la confirmación está pendiente).
+
+Test en verde de punta a punta, confirmado por Javi. `pnpm test` (Vitest, 48/48) sin verse afectado. E2E queda como comando manual (`pnpm test:e2e`); CI queda fuera de alcance.
+

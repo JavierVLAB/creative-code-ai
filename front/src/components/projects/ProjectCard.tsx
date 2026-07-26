@@ -19,6 +19,7 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
 
   return (
     <div
+      data-testid="project-card"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
@@ -47,6 +48,7 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
           {project.name}
         </Link>
         <button
+          data-testid="delete-project-button"
           onClick={() => onDelete(project.id)}
           onMouseEnter={() => setDeleteHover(true)}
           onMouseLeave={() => setDeleteHover(false)}

@@ -71,6 +71,7 @@ export function CreateProjectDialog({ onConfirm, onCancel }: CreateProjectDialog
         </h2>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
           <input
+            data-testid="project-name-input"
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
@@ -102,6 +103,7 @@ export function CreateProjectDialog({ onConfirm, onCancel }: CreateProjectDialog
                 }}
               >
                 <input
+                  data-testid={`project-origin-${option.value}`}
                   type="radio"
                   name="project-origin"
                   value={option.value}
@@ -155,6 +157,7 @@ export function CreateProjectDialog({ onConfirm, onCancel }: CreateProjectDialog
                   }}
                 >
                   <input
+                    data-testid="template-option"
                     type="radio"
                     name="project-template"
                     value={template.id}
@@ -183,6 +186,7 @@ export function CreateProjectDialog({ onConfirm, onCancel }: CreateProjectDialog
               Cancelar
             </button>
             <button
+              data-testid="create-project-confirm-button"
               type="submit"
               disabled={!canSubmit}
               onMouseEnter={() => setConfirmHover(true)}

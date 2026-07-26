@@ -42,17 +42,18 @@ export function LoginPage() {
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
             <label style={{ fontSize: 'var(--font-size-small)', color: 'var(--t2)' }}>Email</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} required style={inputStyle} />
+            <input data-testid="login-email-input" type="email" value={email} onChange={e => setEmail(e.target.value)} required style={inputStyle} />
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
             <label style={{ fontSize: 'var(--font-size-small)', color: 'var(--t2)' }}>Contraseña</label>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required style={inputStyle} />
+            <input data-testid="login-password-input" type="password" value={password} onChange={e => setPassword(e.target.value)} required style={inputStyle} />
           </div>
 
           {error && <p style={{ fontSize: 'var(--font-size-small)', color: '#f87171' }}>{error}</p>}
 
           <button
+            data-testid="login-submit-button"
             type="submit"
             disabled={loading}
             onMouseEnter={() => setBtnHover(true)}
