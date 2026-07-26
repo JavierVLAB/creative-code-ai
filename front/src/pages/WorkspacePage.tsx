@@ -89,7 +89,7 @@ export function WorkspacePage() {
   const [selectedSnapshotIds, setSelectedSnapshotIds] = useState<Set<string>>(new Set())
   const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void } | null>(null)
 
-  const { iframeRef, status, errorMessage, sendInit, sendUpdate, sendRestart } = useSketch()
+  const { iframeRef, status, errorMessage, sendInit, sendUpdate, sendRestart, requestSvgExport, svgExportAvailable } = useSketch()
   const { sendMessage, loading: agentLoading } = useAgent()
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -513,6 +513,8 @@ export function WorkspacePage() {
           onControlChange={handleControlChange}
           onCanvasApply={handleCanvasApply}
           showControls={canvasMode === 'sketch'}
+          assetContext={{ projectId: project.id, userId: project.user_id }}
+          onExportSvg={svgExportAvailable ? requestSvgExport : undefined}
           snapshots={snapshots}
           onSnapshotSave={handleSnapshotSave}
           onSnapshotLoad={(snap) => { handleSnapshotLoad(snap); setCanvasMode('sketch') }}

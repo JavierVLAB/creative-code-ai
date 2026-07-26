@@ -30,3 +30,44 @@ Añadir vista de cuadrícula de snapshots con previews visuales, selección múl
 - **Navegación**: botón "Grid" en SnapshotsPanel para entrar al grid, botón lápiz flotante para volver al sketch
 - **Sidebar**: prop `showControls` para ocultar ParamsControls en modo grid
 
+---
+
+# Sesión 26 julio 2026 — Creación de sketch con 3 orígenes
+
+## Change: `sketch-creation-origins` (archivado)
+
+Un proyecto nuevo insertaba `sketch_js`/`config_yaml` como `null` — el workspace aterrizaba vacío, sin ningún camino para empezar. Se añadieron 3 orígenes al crear: en blanco (boilerplate mínimo válido), pedírselo a la IA (reenvía la descripción como primer mensaje de chat, sin tools nuevas — `edit_params`/`edit_sketch` ya validan solo la salida del LLM) y copiar una plantilla publicada. El primer intento de modal fue en pasos (wizard); corregido tras feedback a un único modal sin pasos. Se descubrió que el iframe solo carga p5.js (three.js no funciona en la práctica pese al spec) y se decidió dejarlo fuera. También se escribieron 4 plantillas nuevas sin revisión creativa directa de Javi — no le gustaron y se rehicieron en la sesión siguiente.
+
+De paso se encontró y arregló un bug preexistente (desde `frontend-agent`): el agente no tenía `memory` configurada pese a que el workflow siempre pasaba `threadId`/`resourceId`, rompiendo el chat. Sin tests que cubrieran esa integración real. Fix: se instaló `@mastra/memory` y se configuró compartiendo el mismo `LibSQLStore` de la instancia de Mastra.
+
+Tests en verde (front 47/47, backend 16/16), build limpio. Change archivado; Javi commiteó él mismo en `feat-new-sketches`.
+
+---
+
+# Sesión 26 julio 2026 — Refresco de plantillas + exportación SVG
+
+## Change: `sketch-templates-refresh` (archivado)
+
+Se pidió reemplazar 4 plantillas insertadas en una sesión anterior sin revisión creativa directa, por 4 plantillas nuevas orientadas a técnicas de producción: tramado/dithering para serigrafía, espiral de ruido Perlin para plotter, flow field de Perlin clásico, y una adaptación de un sketch de mosaico de arcos tipo Truchet aportado por Javi.
+
+### Lo que se construyó
+
+- **Addon `p5.js-svg`** cargado en el runtime del iframe (`SketchViewer.tsx`), habilitando `createCanvas(w,h,SVG)`/`createGraphics(w,h,SVG)`.
+- **Control `type: image`** nuevo en el contrato de `config.yaml`: componente `ControlImage.tsx` con "Subir" y "Galería" (elegir entre imágenes ya subidas al proyecto). Reutiliza la tabla `assets` (ya existía en el schema inicial, sin usar hasta ahora) + nuevo bucket público `sketch-uploads` con RLS por dueño del proyecto. En el playground público (efímero) cae a `FileReader`/data URL en memoria, sin tocar Supabase.
+- **Exportación SVG real**: protocolo `EXPORT_SVG`/`EXPORTED_SVG` + chequeo previo barato `HAS_SVG_EXPORT`/`HAS_SVG_EXPORT_RESULT` (para mostrar el botón solo si el sketch realmente lo soporta). La descarga se dispara desde la página, nunca desde dentro del iframe sandboxed — mismo patrón que ya existía para capturar PNG de snapshots.
+- **4 plantillas nuevas**, todas p5.js: `tramado-serigrafia` (dithering Floyd-Steinberg/Atkinson/estocástico), `espiral-plotter` (radio modulado por ruido Perlin, técnica confirmada por búsqueda web), `flow-field-perlin` (líneas sobre campo de ángulos), `mosaico-arcos` (adaptación del sketch de Javi: arcos concéntricos + `encontrarPuntosInterseccion`, sin las dependencias `OPC.*` del runtime original).
+- **3 migraciones** de Supabase: borrado del contenido anterior sin revisar, bucket nuevo, e inserción del contenido final revisado.
+
+### Bugs reales encontrados y corregidos durante las pruebas de Javi (varias rondas)
+
+- `p5.js-svg@1.5.1` es incompatible con p5.js 1.11.x ("drawingContext is undefined") → subido a `1.6.0`.
+- El SVG real en `p5.js-svg@1.6.0` vive en `g._renderer.svg`, no en `g.elt` (que es un objeto interno de la librería, no un nodo del DOM) — la extracción inicial buscaba en el lugar equivocado.
+- El botón "Exportar SVG" se mostraba siempre (sin comprobar soporte real), y luego un `setSvgExportAvailable(false)` mal puesto en `sendInit`/`sendRestart` anulaba el resultado correcto del chequeo — quitado.
+- Botón/textos no seguían los tokens de diseño del proyecto (`--btn-*`) y quedaba pegado a una línea divisoria innecesaria — se integró dentro del bloque de "Parámetros" en vez de ser una sección aparte.
+- El mosaico de arcos: los dos ángulos de intersección no estaban ordenados, así que el hueco que da la sensación de "un arco pasa por debajo" no se producía y los arcos se cruzaban.
+- "Snapshots desaparecidos" no era un bug: el playground público (`/playground`) tiene `showSnapshots={false}` a propósito (no persiste nada); 
+
+### Nota de proceso
+
+Al revisar el alcance de "subir imagen", se descubrió que la tabla `assets` ya existía en el schema inicial sin usarse — se replanteó en vivo con para aprovecharla (con selector de imágenes ya subidas) en vez de limitar el alcance a solo subir/reemplazar.
+

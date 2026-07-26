@@ -1,0 +1,52 @@
+name: flow-field-perlin
+
+modules:
+  canvas:
+    width: 640
+    height: 640
+
+  n_lineas:
+    type: range
+    label: Cantidad de líneas
+    min: 50
+    max: 800
+    step: 10
+    default: 300
+
+  escala_ruido:
+    type: range
+    label: Escala de ruido
+    min: 0.001
+    max: 0.05
+    step: 0.001
+    default: 0.01
+
+  velocidad:
+    type: range
+    label: Velocidad de avance
+    min: 1
+    max: 10
+    step: 0.5
+    default: 4
+
+  longitud_traza:
+    type: range
+    label: Longitud de la traza
+    min: 10
+    max: 200
+    step: 5
+    default: 60
+
+  color_linea:
+    type: select
+    label: Color de línea
+    options:
+      - label: Azul
+        value: '#2980b9'
+      - label: Negro
+        value: '#111111'
+      - label: Rojo
+        value: '#c0392b'
+      - label: Verde
+        value: '#27ae60'
+    default: '#2980b9'

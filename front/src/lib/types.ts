@@ -26,7 +26,12 @@ export interface SelectModuleConfig {
   default: string
 }
 
-export type ModuleConfig = RangeModuleConfig | SelectModuleConfig
+export interface ImageModuleConfig {
+  type: 'image'
+  label: string
+}
+
+export type ModuleConfig = RangeModuleConfig | SelectModuleConfig | ImageModuleConfig
 
 export interface SketchConfig {
   name: string
@@ -55,7 +60,14 @@ export interface SelectControl {
   isColor: boolean
 }
 
-export type Control = SliderControl | SelectControl
+export interface ImageControl {
+  kind: 'image'
+  key: string
+  label: string
+  defaultValue: string
+}
+
+export type Control = SliderControl | SelectControl | ImageControl
 
 // Valores activos de los parámetros en la UI (clave del control → valor)
 export type ParamValues = Record<string, string | number>

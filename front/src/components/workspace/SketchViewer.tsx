@@ -63,6 +63,7 @@ function buildSrcdoc(sketchJs: string): string {
 <meta charset="utf-8">
 <style>body { margin: 0; overflow: hidden; }</style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.3/p5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/p5.js-svg@1.6.0/dist/p5.svg.js"></script>
 </head>
 <body>
 <script>
@@ -80,6 +81,27 @@ window.addEventListener('message', function(event) {
     } else {
       window.parent.postMessage({ type: 'CAPTURED_CANVAS', dataUrl: null }, '*')
     }
+  }
+
+  // Bridge de exportación SVG: el sketch expone window.__exportSVG() si la soporta
+  // (ver p5.js-svg y sketch-contract). Nunca se descarga desde dentro del iframe
+  // sandboxed — se devuelve el string SVG al padre, que dispara la descarga real.
+  if (event.data && event.data.type === 'EXPORT_SVG') {
+    try {
+      const svg = typeof window.__exportSVG === 'function' ? window.__exportSVG() : null
+      window.parent.postMessage({ type: 'EXPORTED_SVG', svg: svg ?? null }, '*')
+    } catch (e) {
+      // Se deja visible en consola a propósito: sin esto, cualquier fallo de
+      // window.__exportSVG() se traga en silencio y no hay forma de diagnosticarlo.
+      console.error('[sketch] EXPORT_SVG falló', e)
+      window.parent.postMessage({ type: 'EXPORTED_SVG', svg: null }, '*')
+    }
+  }
+
+  // Chequeo barato de soporte de SVG (sin generar el SVG completo) — para
+  // decidir si mostrar el botón "Exportar SVG" en el sidebar.
+  if (event.data && event.data.type === 'HAS_SVG_EXPORT') {
+    window.parent.postMessage({ type: 'HAS_SVG_EXPORT_RESULT', supported: typeof window.__exportSVG === 'function' }, '*')
   }
 })
 ${sketchJs}

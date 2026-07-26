@@ -74,6 +74,24 @@ describe('generateControls', () => {
     }
   })
 
+  it('módulo image genera ImageControl con defaultValue vacío', () => {
+    const config: SketchConfig = {
+      ...BASE_CONFIG,
+      modules: {
+        ...BASE_CONFIG.modules,
+        imagen_fuente: { type: 'image', label: 'Imagen de origen' },
+      },
+    }
+    const controls = generateControls(config)
+    expect(controls).toHaveLength(1)
+    expect(controls[0].kind).toBe('image')
+    if (controls[0].kind === 'image') {
+      expect(controls[0].key).toBe('imagen_fuente')
+      expect(controls[0].label).toBe('Imagen de origen')
+      expect(controls[0].defaultValue).toBe('')
+    }
+  })
+
   it('módulo canvas no genera control', () => {
     const controls = generateControls(BASE_CONFIG)
     expect(controls).toHaveLength(0)
