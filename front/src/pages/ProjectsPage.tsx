@@ -39,6 +39,7 @@ export function ProjectsPage() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--t1)' }}>Mis proyectos</h1>
         <button
+          data-testid="create-project-button"
           onClick={() => setShowCreate(true)}
           onMouseEnter={() => setNewBtnHover(true)}
           onMouseLeave={() => setNewBtnHover(false)}
@@ -133,6 +134,7 @@ export function ProjectsPage() {
                 Cancelar
               </button>
               <button
+                data-testid="delete-project-confirm-button"
                 onClick={() => handleDelete(deleteTarget)}
                 onMouseEnter={() => setDeleteBtnHover(true)}
                 onMouseLeave={() => setDeleteBtnHover(false)}

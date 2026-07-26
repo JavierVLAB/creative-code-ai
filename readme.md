@@ -278,11 +278,9 @@ npx mastra studio deploy  --project curateartai-backend --env-file .env   # opci
 
 ### 2.6. Tests
 
-Pruebas previstas y parcialmente implementadas:
-
 - **Unitarios** (Vitest): parseo de `config.yaml`, generación de controles, sincronización del sketch, hook del agente y tools del backend.
 - **Integración**: CRUD con RLS y contrato del agente.
-- **E2E** (pendiente): flujo principal login → crear → editar con el agente → persistir → recuperar.
+- **E2E** (Playwright, `front/e2e/`): golden path — login → crear proyecto desde plantilla → workspace → mover un control → verificar reactividad del sketch (`postMessage`) → limpiar el proyecto creado. Se ejecuta a mano con `pnpm test:e2e` (requiere `pnpm dev` corriendo y un usuario de test en Supabase); no está integrado en CI todavía.
 
 ---
 

@@ -21,6 +21,7 @@ export function ControlSlider({ control, value, onChange }: ControlSliderProps) 
 
       {/* Slider */}
       <input
+        data-testid={`control-slider-${control.key}`}
         type="range"
         min={control.min}
         max={control.max}

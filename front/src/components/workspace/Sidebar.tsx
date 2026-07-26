@@ -106,6 +106,7 @@ export function Sidebar({
   if (!isOpen) {
     return (
       <button
+        data-testid="open-sidebar-button"
         onClick={() => setIsOpen(true)}
         title="Abrir panel lateral"
         style={{

@@ -171,6 +171,7 @@ export function SketchViewer({ sketchJs, configYaml, iframeRef, status, errorMes
         // El key fuerza el remontaje (y re-ejecución de setup) al cambiar el tamaño del lienzo
         key={`${canvasSize.width}x${canvasSize.height}`}
         ref={iframeRef}
+        data-testid="sketch-iframe"
         title="sketch"
         srcDoc={buildSrcdoc(effectiveSketchJs)}
         sandbox="allow-scripts"

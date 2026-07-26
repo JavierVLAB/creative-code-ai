@@ -21,6 +21,11 @@ pnpm-debug.log*
 !.env.example
 !.env.e2e.example
 
+# Playwright E2E (storageState de sesión, reportes, trazas)
+front/.auth/
+front/test-results/
+front/playwright-report/
+
 # Vite
 .vite/
 
