@@ -1,4 +1,4 @@
-import type { SketchConfig, Control, SliderControl, SelectControl } from './types'
+import type { SketchConfig, Control, SliderControl, SelectControl, ImageControl } from './types'
 
 const HEX_RE = /^#[0-9a-fA-F]{3,8}$/
 
@@ -40,6 +40,17 @@ export function generateControls(config: SketchConfig): Control[] {
           options: s.options,
           defaultValue: s.default,
           isColor: allHex,
+        }
+        return [control]
+      }
+
+      if (m.type === 'image') {
+        const i = mod as { type: 'image'; label: string }
+        const control: ImageControl = {
+          kind: 'image',
+          key,
+          label: i.label,
+          defaultValue: '',
         }
         return [control]
       }

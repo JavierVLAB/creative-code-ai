@@ -1,0 +1,46 @@
+name: espiral-plotter
+
+modules:
+  canvas:
+    width: 640
+    height: 640
+
+  vueltas:
+    type: range
+    label: Vueltas
+    min: 3
+    max: 30
+    step: 1
+    default: 10
+
+  escala_ruido:
+    type: range
+    label: Escala de ruido
+    min: 0.1
+    max: 3
+    step: 0.1
+    default: 1
+
+  amplitud:
+    type: range
+    label: Amplitud
+    min: 0
+    max: 150
+    step: 1
+    default: 60
+
+  semilla:
+    type: range
+    label: Semilla
+    min: 0
+    max: 1000
+    step: 1
+    default: 42
+
+  grosor_trazo:
+    type: range
+    label: Grosor del trazo
+    min: 0.5
+    max: 4
+    step: 0.1
+    default: 1.5

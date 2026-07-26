@@ -55,6 +55,42 @@ La app SHALL enviar `SKETCH_UPDATE` al iframe cada vez que el usuario mueve un c
 - **THEN** la app envía `SKETCH_UPDATE` con el nuevo valor
 - **THEN** el sketch aplica el cambio
 
+### Requirement: La app genera un control de imagen desde `config.yaml`
+La app SHALL parsear módulos `type: image` de `config.yaml` y generar un control de subida/selección de imagen. En un proyecto autenticado (con `assetContext`), el control SHALL permitir subir una imagen nueva (persistida en el bucket de Storage `sketch-uploads` y en `public.assets`) o elegir entre las imágenes ya subidas al proyecto. En modo efímero (sin `assetContext`, ver "El workspace soporta sketches efimeros"), el control SHALL leer el archivo localmente (data URL) sin escribir en Supabase.
+
+#### Scenario: Subir imagen en un proyecto autenticado
+- **WHEN** el usuario sube una imagen desde un control `type: image` en su propio proyecto
+- **THEN** la app sube el archivo a `sketch-uploads/{project_id}/{asset_id}.<ext>`
+- **THEN** inserta una fila en `public.assets`
+- **THEN** envía el valor (URL pública) al sketch vía `SKETCH_UPDATE`
+
+#### Scenario: Elegir una imagen ya subida
+- **WHEN** el usuario abre el selector "Elegir de las subidas" de un control de imagen
+- **THEN** la app lista los `assets` del proyecto actual
+- **THEN** al elegir uno, envía su URL al sketch vía `SKETCH_UPDATE` sin subir nada nuevo
+
+#### Scenario: Subir imagen en modo efímero
+- **WHEN** el visitante del playground sube una imagen desde un control `type: image`
+- **THEN** la app lee el archivo como data URL en memoria
+- **THEN** no se realiza ninguna escritura en Supabase Storage ni en `assets`
+
+### Requirement: El workspace ofrece exportación SVG solo cuando el sketch la soporta
+Al quedar listo un sketch (`SKETCH_READY`), la app SHALL comprobar de forma barata si expone `window.__exportSVG` mediante `HAS_SVG_EXPORT` (App → iframe) / `HAS_SVG_EXPORT_RESULT` (iframe → App), sin generar el SVG completo. El botón "Exportar SVG" SHALL mostrarse únicamente cuando esa comprobación es positiva — nunca para sketches que no lo soportan. Al pulsarlo, la app SHALL pedir el SVG real mediante `EXPORT_SVG` / `EXPORTED_SVG`, y disparar la descarga del archivo desde el documento de nivel superior (nunca desde dentro del iframe sandboxed).
+
+#### Scenario: Sketch soporta exportación SVG
+- **WHEN** un sketch que expone `window.__exportSVG` emite `SKETCH_READY`
+- **THEN** la app recibe `HAS_SVG_EXPORT_RESULT` con `supported: true` y muestra el botón "Exportar SVG"
+- **WHEN** el usuario pulsa el botón
+- **THEN** la app recibe el string SVG vía `EXPORTED_SVG` y dispara la descarga de un archivo `.svg` desde la página, no desde el iframe
+
+#### Scenario: Sketch no soporta exportación SVG
+- **WHEN** un sketch que no expone `window.__exportSVG` emite `SKETCH_READY`
+- **THEN** la app recibe `supported: false` (o no responde) y no muestra el botón "Exportar SVG"
+
+#### Scenario: Cambio de sketch
+- **WHEN** se carga un sketch distinto (`SKETCH_INIT`/`SKETCH_RESTART`)
+- **THEN** la app oculta el botón hasta que el nuevo sketch confirme soporte con su propio `HAS_SVG_EXPORT_RESULT`
+
 ### Requirement: La app solo procesa mensajes de su propio iframe
 La app SHALL verificar `event.source === iframeRef.current?.contentWindow` antes de procesar cualquier mensaje `postMessage`.
 

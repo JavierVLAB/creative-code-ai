@@ -113,7 +113,7 @@ function PlaygroundWorkspace({ template }: { template: Template }) {
   const [activeFile, setActiveFile] = useState<'sketch.js' | 'config.yaml' | null>(null)
   const [editorContent, setEditorContent] = useState('')
 
-  const { iframeRef, status, errorMessage, sendInit, sendUpdate, sendRestart } = useSketch()
+  const { iframeRef, status, errorMessage, sendInit, sendUpdate, sendRestart, requestSvgExport, svgExportAvailable } = useSketch()
 
   function handleControlsReady(nextControls: Control[]) {
     setControls(nextControls)
@@ -204,6 +204,7 @@ function PlaygroundWorkspace({ template }: { template: Template }) {
           canvasSize={canvasSize}
           onControlChange={handleControlChange}
           onCanvasApply={handleCanvasApply}
+          onExportSvg={svgExportAvailable ? requestSvgExport : undefined}
           snapshots={[]}
           onSnapshotSave={() => undefined}
           onSnapshotLoad={() => undefined}

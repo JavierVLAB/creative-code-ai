@@ -40,6 +40,10 @@ interface SidebarProps {
   onControlChange: (key: string, value: unknown) => void
   onCanvasApply: (size: { width: number; height: number }) => void
   showControls?: boolean
+  assetContext?: { projectId: string; userId: string } | null
+  // Exportación SVG (ver sketch-workspace). Ausente o null → el sketch actual
+  // no la soporta, así que no se muestra el botón.
+  onExportSvg?: () => Promise<string | null>
   // SnapshotsPanel
   snapshots: Snapshot[]
   onSnapshotSave: (label: string) => void
@@ -76,6 +80,8 @@ export function Sidebar({
   onControlChange,
   onCanvasApply,
   showControls = true,
+  assetContext = null,
+  onExportSvg,
   snapshots,
   onSnapshotSave,
   onSnapshotLoad,
@@ -243,6 +249,8 @@ export function Sidebar({
             canvasSize={canvasSize}
             onControlChange={onControlChange}
             onCanvasApply={onCanvasApply}
+            assetContext={assetContext}
+            onExportSvg={onExportSvg}
           />
         )}
 

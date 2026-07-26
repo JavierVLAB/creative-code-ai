@@ -1,0 +1,64 @@
+name: tramado-serigrafia
+
+modules:
+  canvas:
+    width: 640
+    height: 640
+
+  imagen_fuente:
+    type: image
+    label: Imagen de origen
+
+  resolucion:
+    type: range
+    label: Resolución de trama (px)
+    min: 2
+    max: 20
+    step: 1
+    default: 6
+
+  umbral:
+    type: range
+    label: Umbral tonal
+    min: 0
+    max: 255
+    step: 1
+    default: 128
+
+  contraste:
+    type: range
+    label: Contraste
+    min: -100
+    max: 100
+    step: 1
+    default: 0
+
+  intensidad:
+    type: range
+    label: Intensidad del tramado
+    min: 0
+    max: 1
+    step: 0.05
+    default: 1
+
+  invertir:
+    type: select
+    label: Invertir
+    options:
+      - label: No
+        value: 'no'
+      - label: Sí
+        value: 'si'
+    default: 'no'
+
+  algoritmo:
+    type: select
+    label: Algoritmo
+    options:
+      - label: Floyd-Steinberg
+        value: floyd-steinberg
+      - label: Atkinson
+        value: atkinson
+      - label: Estocástico
+        value: estocastico
+    default: floyd-steinberg

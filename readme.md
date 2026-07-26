@@ -66,7 +66,8 @@ Agrupadas por área. La versión actual cubre un subconjunto; el resto marca la 
 - **Exploración:** visor del sketch en iframe aislado; controles de parámetros generados automáticamente desde la configuración.
 - **Agente de IA:** edición de configuración y código en lenguaje natural; generación de un sketch completo desde una descripción; historial de conversación por proyecto; memoria de proyecto que el agente lee y propone actualizar; editor de código y explorador de archivos como apoyo.
 - **Curación:** snapshots de parámetros; (visión) generación por lotes de variaciones y grid de comparación con favoritas.
-- **Producción y export (visión):** alta resolución, SVG para pen plotter, separación de capas para serigrafía.
+- **Biblioteca de plantillas:** plantillas publicadas variadas (creative coding: ruido Perlin, tramado/dithering, mosaicos geométricos, trazo para plotter), reutilizables desde el playground público y al crear un proyecto autenticado.
+- **Producción y export:** exportación de sketch a SVG vectorial real (para pen plotter y patrones geométricos) vía addon `p5.js-svg`; control de subida de imagen (`type: image`) para plantillas que procesan una imagen de origen (ej. tramado para serigrafía). (visión pendiente) alta resolución de exportación y separación de capas multicolor para serigrafía.
 
 **Objetivos del producto**
 - Separar la capa de exploración de la capa de código: parametrizar un sketch sin tocar el código.
@@ -384,17 +385,25 @@ create table snapshots (
 );
 create index on snapshots (project_id);
 
--- Binarios del sketch y exports de producción en Supabase Storage.
+-- Metadata de imágenes subidas por el usuario a un proyecto (ej. imagen de
+-- origen de la plantilla de tramado para serigrafía). El binario vive en el
+-- bucket de Storage `sketch-uploads`; esta fila solo guarda su URL pública.
 create table assets (
-  id           uuid primary key default gen_random_uuid(),
-  project_id   uuid not null references projects(id) on delete cascade,
-  storage_path text not null,
-  mime_type    text,
-  kind         text not null default 'asset' check (kind in ('asset', 'export')),
-  created_at   timestamptz not null default now()
+  id         uuid primary key default gen_random_uuid(),
+  project_id uuid not null references projects(id) on delete cascade,
+  user_id    uuid not null references profiles(id) on delete cascade,
+  name       text not null,
+  url        text not null,
+  mime_type  text,
+  size_bytes bigint,
+  created_at timestamptz not null default now()
 );
 create index on assets (project_id);
 ```
+
+**Plantillas publicadas.** Tabla `templates` (`slug`, `title`, `description`, `sketch_js`, `config_yaml`, `renderer`, `thumbnail_url`, `tags`, `is_published`) — recurso independiente de `projects`, usado por el playground público y como origen al crear un proyecto autenticado.
+
+**Storage.** Dos buckets públicos con RLS en `storage.objects` acotada por dueño del proyecto: `snapshot-previews` (miniaturas de snapshots) y `sketch-uploads` (imágenes de origen subidas por el usuario para un control `type: image`).
 
 **Memoria del agente.** El historial de chat lo gestiona Mastra (`@mastra/pg`) en el mismo Postgres de Supabase. Organiza la conversación en *resource* (el usuario), *thread* (el proyecto, un hilo por proyecto) y *message* (cada turno). Mastra crea esas tablas automáticamente.
 
@@ -512,6 +521,16 @@ Otros contratos del sistema, fuera de esta API REST:
 - Cargar un snapshot restaura los valores y actualiza el sketch.
 - Los snapshots quedan asociados al proyecto y se recuperan al reabrirlo.
 
+#### Historia de Usuario 8 — Plantillas de producción y exportación SVG
+
+**Como** artista, **quiero** partir de plantillas orientadas a técnicas de producción física (plotter, serigrafía) y exportar mi sketch a SVG, **para** poder llevarlo fuera de la pantalla.
+
+**Criterios de aceptación**
+- La biblioteca de plantillas incluye ejemplos variados de creative coding (ruido Perlin, tramado/dithering, mosaico geométrico, trazo para plotter).
+- Un sketch puede declarar un control `type: image`; el usuario sube una imagen o elige entre las ya subidas al proyecto.
+- Un sketch puede exponer exportación a SVG real (vectorial); el botón "Exportar SVG" solo aparece si el sketch actual la soporta.
+- La descarga del SVG se dispara desde la aplicación, nunca desde dentro del iframe aislado del sketch.
+
 ### Historias pendientes / visión de curación
 
 #### Historia de Usuario 5 — Variaciones por lotes
@@ -581,6 +600,12 @@ Otros contratos del sistema, fuera de esta API REST:
 - **Tareas:** definir el modelo mínimo de plantilla publicada (`title`, `description`, `sketch_js`, `config_yaml`, `renderer`, `thumbnail_url`, `tags`, `is_published`); añadir la ruta pública `/playground`; listar plantillas publicadas; reutilizar el visor y los controles del workspace en modo no persistente; bloquear o deshabilitar el chat de IA en esta ruta; evitar escrituras en `projects`, `snapshots`, `memory` y `updated_at`; añadir CTA para crear cuenta e iniciar un proyecto real desde una plantilla.
 - **Criterios de aceptación:** cualquier visitante puede abrir el playground y probar una plantilla; los controles modifican el sketch solo en la sesión actual; recargar la página restaura el estado original de la plantilla; no se realizan escrituras de usuario en Supabase; la IA queda claramente deshabilitada; el diseño deja preparado el camino para una demo futura con IA habilitada por token.
 
+**Ticket 6 (Frontend + Datos) — Plantillas de producción y exportación SVG**
+- **Historia:** H8 (plantillas de producción y exportación SVG).
+- **Descripción:** reemplazar el contenido de la biblioteca de plantillas por cuatro plantillas orientadas a técnicas de producción (tramado para serigrafía, espiral para plotter, flow field de ruido Perlin, mosaico de arcos), y ampliar el runtime del sketch para soportar subida de imagen y exportación vectorial SVG.
+- **Tareas:** cargar el addon `p5.js-svg` en el iframe del sketch; nuevo tipo de control `type: image` en `config.yaml` (contrato) con componente de subida/selección en el sidebar; usar la tabla `assets` ya existente + nuevo bucket `sketch-uploads` (Storage, RLS por dueño del proyecto) para persistir imágenes subidas en proyectos autenticados, con fallback a `FileReader`/data URL en el playground efímero; protocolo `EXPORT_SVG`/`EXPORTED_SVG` (con chequeo previo `HAS_SVG_EXPORT`) para pedir el SVG al sketch y descargarlo desde fuera del iframe sandboxed; escribir y revisar las 4 plantillas nuevas; migraciones de borrado del contenido anterior sin revisar y de alta del contenido nuevo.
+- **Criterios de aceptación:** las 4 plantillas nuevas se ven y funcionan en el playground y en un proyecto; el botón "Exportar SVG" solo aparece en sketches que lo soportan; la imagen subida se ve reflejada en el sketch; ningún sketch existente sin controles de imagen o SVG se ve afectado.
+
 ---
 
 ## 7. Pull requests
@@ -614,3 +639,7 @@ En esta fase del proyecto no se ha seguido todavía un flujo formal de pull requ
 - **Ticket 5 (Frontend + Datos)**
   - `62bc4dfa` — `feat: playground public`
     - Implementa `/playground`, biblioteca de plantillas, modo efímero y desactivación de IA en la demo pública.
+
+- **Ticket 6 (Frontend + Datos)**
+  - _(pendiente de completar con el hash del commit/PR)_ — `feat: sketch templates refresh`
+    - Reemplaza el contenido de la biblioteca de plantillas (tramado para serigrafía, espiral para plotter, flow field de Perlin, mosaico de arcos); añade control `type: image` y exportación SVG (`p5.js-svg`, protocolo `EXPORT_SVG`/`HAS_SVG_EXPORT`); usa la tabla `assets` existente + nuevo bucket `sketch-uploads`.

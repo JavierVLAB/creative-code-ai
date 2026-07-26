@@ -36,12 +36,17 @@ modules:
       - label: Opción B
         value: opcion_b
     default: opcion_a
+
+  otro_parametro_imagen:
+    type: image          # subida/selección de imagen
+    label: Etiqueta visible
 ```
 
 ### Reglas
 
 - `type: range` → genera un slider. `default` es un número dentro de [min, max].
 - `type: select` → genera chips de selección. `default` debe ser uno de los `value` definidos.
+- `type: image` → genera un control de subida/selección de imagen (ver `sketch-workspace`). No lleva `min`/`max`/`options`/`default`. El sketch recibe siempre un **string URL** (http(s) o data URL) en `params.<nombre_parametro>`, nunca un objeto `File`; usarlo con `loadImage(url, cb)`. Valor inicial: cadena vacía si el usuario no ha subido ni elegido ninguna imagen.
 - Si las opciones son colores hexadecimales, la UI renderiza swatches en vez de chips.
 - Las etiquetas (`label`) van en español.
 - El canvas es siempre el primer módulo.
@@ -135,3 +140,12 @@ El renderer se infiere del código del sketch, sin que el usuario lo declare:
 - Si no → renderer `p5js`
 
 Esta detección la hace la app antes de pasar el sketch al agente.
+
+---
+
+## Addon p5.js-svg — exportación vectorial opcional
+
+El runtime del iframe carga, además de `p5.js`, el addon [`p5.js-svg`](https://github.com/zenozeng/p5.js-svg) vía CDN. Es una capacidad **aditiva y opcional**: ningún sketch existente que no la use se ve afectado.
+
+- Un sketch puede pedir `createCanvas(w, h, SVG)` o `createGraphics(w, h, SVG)` para dibujar sobre un lienzo vectorial real.
+- Para ofrecer exportación de archivo, el sketch expone `window.__exportSVG(): string`, que devuelve el SVG serializado del `createGraphics(..., SVG)` correspondiente. La app lo invoca a través del protocolo `EXPORT_SVG`/`EXPORTED_SVG` (ver `sketch-workspace`) — nunca se descarga el archivo directamente desde dentro del iframe sandboxed.
