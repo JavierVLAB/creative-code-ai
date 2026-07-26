@@ -40,7 +40,10 @@ export function useProjectAssets(projectId: string, userId: string): UseProjectA
     setLoading(false)
   }, [projectId])
 
+  // Carga inicial al montar / al cambiar de proyecto. La regla es conservadora
+  // con el fetch-on-mount, que aquí es intencional (mismo patrón que useProjects).
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchAssets()
   }, [fetchAssets])
 
