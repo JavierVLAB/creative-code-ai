@@ -1,0 +1,38 @@
+name: cuadrados-lineas-libres
+
+modules:
+  canvas:
+    width: 640
+    height: 640
+
+  num_cuadrados:
+    type: range
+    label: Número de cuadrados
+    min: 1
+    max: 40
+    step: 1
+    default: 10
+
+  num_lineas:
+    type: range
+    label: Líneas por cuadrado
+    min: 1
+    max: 20
+    step: 1
+    default: 5
+
+  tamano_cuadrado:
+    type: range
+    label: Tamaño de cuadrado
+    min: 20
+    max: 200
+    step: 5
+    default: 80
+
+  velocidad:
+    type: range
+    label: Velocidad
+    min: 0.2
+    max: 6
+    step: 0.1
+    default: 1.5

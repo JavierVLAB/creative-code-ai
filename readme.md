@@ -150,7 +150,7 @@ SUPABASE_SECRET_KEY=...
 DATABASE_URL=...
 ```
 
-Las migraciones versionadas están en `supabase/migrations/`. El despliegue público, sus URLs y las variables finales quedan pendientes.
+Las migraciones versionadas están en `supabase/migrations/`. El despliegue público (Vercel + Mastra Cloud), sus URLs y variables están documentados en §0.4 y §2.4.
 
 ---
 
